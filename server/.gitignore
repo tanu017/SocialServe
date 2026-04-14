@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Secrets and Config (NEVER commit these)
+.env
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Runtime files
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage reports (if you use Jest/Mocha)
+coverage/
