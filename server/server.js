@@ -40,11 +40,18 @@ app.use((req, res) => {
 
 // Global error handler
 app.use((err, req, res, next) => {
-  res.status(500).json({ success: false, message: err.message });
+  console.error("DEBUG ERROR:", err); // This will show the actual bug in your terminal
+  
+  const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
+  res.status(statusCode).json({
+    success: false,
+    message: err.message || 'Internal Server Error',
+    stack: process.env.NODE_ENV === 'production' ? null : err.stack,
+  });
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5050;
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });

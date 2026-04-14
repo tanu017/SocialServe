@@ -70,18 +70,19 @@ const userSchema = new mongoose.Schema(
 );
 
 // Pre-save hook to hash password
-userSchema.pre('save', async function (next) {
+// Remove 'next' from the arguments
+userSchema.pre('save', async function () {
   // Only hash the password if it has been modified (or is new)
   if (!this.isModified('password')) {
-    return next();
+    return; // Just return instead of calling next()
   }
 
   try {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
-    next();
+    // In async hooks, Mongoose moves forward once the promise resolves
   } catch (error) {
-    next(error);
+    throw error; // Throwing the error will trigger the global error handler
   }
 });
 
