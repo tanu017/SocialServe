@@ -16,19 +16,32 @@ connectDB();
 const app = express();
 
 // Middleware
-app.use(express.json()); // Body parser for JSON
-app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cors({
+  origin: process.env.CLIENT_URL || '*'
+}));
 
 // Basic Route for testing
 app.get('/', (req, res) => {
-  res.send('Social Cause Connect API is running...');
+  res.send('Social Serve API is running...');
 });
 
 // API Routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/donations', donationRoutes);
 app.use('/api/v1/needs', needRoutes);
-app.use('/api/v1/messages', messageRoutes);
+app.use('/api/v1', messageRoutes);
+
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ success: false, message: 'Route not found' });
+});
+
+// Global error handler
+app.use((err, req, res, next) => {
+  res.status(500).json({ success: false, message: err.message });
+});
 
 const PORT = process.env.PORT || 5000;
 
