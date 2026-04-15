@@ -5,8 +5,8 @@ import ProtectedRoute from './components/routing/ProtectedRoute';
 
 // Pages
 import HomePage from './pages/public/HomePage';
-import BrowseDonationsPage from './pages/BrowseDonationsPage';
-import BrowseNeedsPage from './pages/BrowseNeedsPage';
+import BrowseDonationsPage from './pages/public/BrowseDonationsPage';
+import BrowseNeedsPage from './pages/public/BrowseNeedsPage';
 import DonationDetailPage from './pages/DonationDetailPage';
 import NeedDetailPage from './pages/NeedDetailPage';
 import LoginPage from './pages/LoginPage';
