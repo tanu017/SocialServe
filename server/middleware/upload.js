@@ -44,7 +44,7 @@ const multerErrorHandler = (err, req, res, next) => {
 /**
  * Upload a file buffer to Cloudinary
  * @param {Buffer} fileBuffer - The file buffer to upload
- * @param {String} folder - The folder path in Cloudinary (e.g., 'givehub/donations')
+ * @param {String} folder - The folder path in Cloudinary (e.g., 'SocialServe/donations')
  * @returns {Promise<String>} - The secure_url of the uploaded file
  */
 const uploadToCloudinary = (fileBuffer, folder) => {

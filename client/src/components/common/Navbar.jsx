@@ -49,7 +49,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex-shrink-0">
-          <span className="text-xl font-bold text-[#1D9E75]">GiveHub</span>
+          <span className="text-xl font-bold text-[#1D9E75]">SocialServe</span>
         </Link>
 
         {/* Center Navigation - Hidden on mobile, visible on md+ */}

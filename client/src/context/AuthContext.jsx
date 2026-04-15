@@ -12,8 +12,8 @@ export const AuthProvider = ({ children }) => {
   // Initialize auth state from localStorage on mount
   useEffect(() => {
     const initializeAuth = async () => {
-      const storedToken = localStorage.getItem('givehub_token');
-      const storedUser = localStorage.getItem('givehub_user');
+      const storedToken = localStorage.getItem('SocialServe_token');
+      const storedUser = localStorage.getItem('SocialServe_user');
 
       if (storedToken && storedUser) {
         setToken(storedToken);
@@ -26,8 +26,8 @@ export const AuthProvider = ({ children }) => {
           setIsAuthenticated(true);
         } catch (error) {
           // Token is invalid, clear storage
-          localStorage.removeItem('givehub_token');
-          localStorage.removeItem('givehub_user');
+          localStorage.removeItem('SocialServe_token');
+          localStorage.removeItem('SocialServe_user');
           setToken(null);
           setUser(null);
           setIsAuthenticated(false);
@@ -44,8 +44,8 @@ export const AuthProvider = ({ children }) => {
       const response = await loginUser({ email, password });
       const { token: newToken, user: userData } = response.data.data || response.data;
 
-      localStorage.setItem('givehub_token', newToken);
-      localStorage.setItem('givehub_user', JSON.stringify(userData));
+      localStorage.setItem('SocialServe_token', newToken);
+      localStorage.setItem('SocialServe_user', JSON.stringify(userData));
 
       setToken(newToken);
       setUser(userData);
@@ -63,8 +63,8 @@ export const AuthProvider = ({ children }) => {
       const response = await registerUser(data);
       const { token: newToken, user: userData } = response.data.data || response.data;
 
-      localStorage.setItem('givehub_token', newToken);
-      localStorage.setItem('givehub_user', JSON.stringify(userData));
+      localStorage.setItem('SocialServe_token', newToken);
+      localStorage.setItem('SocialServe_user', JSON.stringify(userData));
 
       setToken(newToken);
       setUser(userData);
@@ -83,8 +83,8 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
-      localStorage.removeItem('givehub_token');
-      localStorage.removeItem('givehub_user');
+      localStorage.removeItem('SocialServe_token');
+      localStorage.removeItem('SocialServe_user');
       setToken(null);
       setUser(null);
       setIsAuthenticated(false);

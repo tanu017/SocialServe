@@ -4,7 +4,7 @@ import Navbar from './components/common/Navbar';
 import ProtectedRoute from './components/routing/ProtectedRoute';
 
 // Pages
-import HomePage from './pages/HomePage';
+import HomePage from './pages/public/HomePage';
 import BrowseDonationsPage from './pages/BrowseDonationsPage';
 import BrowseNeedsPage from './pages/BrowseNeedsPage';
 import DonationDetailPage from './pages/DonationDetailPage';

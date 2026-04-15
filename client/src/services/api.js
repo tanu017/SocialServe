@@ -7,7 +7,7 @@ const api = axios.create({
 // Request interceptor to add token to headers
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('givehub_token');
+    const token = localStorage.getItem('SocialServe_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -25,8 +25,8 @@ api.interceptors.response.use(
   },
   (error) => {
     if (error.response && error.response.status === 401) {
-      localStorage.removeItem('givehub_token');
-      localStorage.removeItem('givehub_user');
+      localStorage.removeItem('SocialServe_token');
+      localStorage.removeItem('SocialServe_user');
       window.location.href = '/login';
     }
     return Promise.reject(error);

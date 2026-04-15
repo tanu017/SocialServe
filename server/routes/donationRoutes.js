@@ -76,7 +76,7 @@ router.post('/', protect, authorize('donator'), multerUpload, async (req, res) =
     const imageUrls = [];
     if (req.files && req.files.images) {
       for (const file of req.files.images) {
-        const imageUrl = await uploadToCloudinary(file.buffer, 'givehub/donations');
+        const imageUrl = await uploadToCloudinary(file.buffer, 'SocialServe/donations');
         imageUrls.push(imageUrl);
       }
     }
@@ -224,7 +224,7 @@ router.put('/:id', protect, authorize('donator'), multerUpload, async (req, res)
     if (req.files && req.files.images) {
       const imageUrls = [];
       for (const file of req.files.images) {
-        const imageUrl = await uploadToCloudinary(file.buffer, 'givehub/donations');
+        const imageUrl = await uploadToCloudinary(file.buffer, 'SocialServe/donations');
         imageUrls.push(imageUrl);
       }
       post.images = imageUrls;
