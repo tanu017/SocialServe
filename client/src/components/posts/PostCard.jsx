@@ -76,9 +76,9 @@ const PostCard = ({ post, type, onCTAClick }) => {
     >
       {/* Image Section */}
       <div className="h-48 bg-gray-100 overflow-hidden rounded-t-xl flex items-center justify-center">
-        {images && images.length > 0 ? (
+        {images?.length > 0 ? (
           <img
-            src={images[0]}
+            src={images?.[0]}
             alt={title}
             className="w-full h-full object-cover"
           />
@@ -122,9 +122,9 @@ const PostCard = ({ post, type, onCTAClick }) => {
         {/* Poster Info Row */}
         <div className="flex items-center gap-2 mt-3 mb-3">
           <div className="w-6 h-6 bg-gradient-to-br from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
-            {posterName.charAt(0).toUpperCase()}
+            {posterName?.charAt(0)?.toUpperCase() || '?'}
           </div>
-          <span className="text-xs text-gray-700 font-medium">{posterName}</span>
+          <span className="text-xs text-gray-700 font-medium">{posterName || 'Anonymous'}</span>
           {isVerified && <span className="text-green-600 text-xs">✓</span>}
         </div>
 

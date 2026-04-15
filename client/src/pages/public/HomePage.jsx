@@ -18,20 +18,26 @@ export default function HomePage() {
     const fetchData = async () => {
       try {
         setLoadingDonations(true);
-        const donationsRes = await getDonations({ page: 1, limit: 6 });
-        setDonations(donationsRes.data.data || donationsRes.data);
+        const res = await getDonations({ page: 1, limit: 6 });
+        // Try both response shapes
+        const donations = res.data?.data || res.data?.donations || res.data || [];
+        setDonations(Array.isArray(donations) ? donations : []);
       } catch (error) {
         console.error('Error fetching donations:', error);
+        setDonations([]);
       } finally {
         setLoadingDonations(false);
       }
 
       try {
         setLoadingNeeds(true);
-        const needsRes = await getNeeds({ page: 1, limit: 3 });
-        setNeeds(needsRes.data.data || needsRes.data);
+        const res = await getNeeds({ page: 1, limit: 3 });
+        // Try both response shapes
+        const needs = res.data?.data || res.data?.needs || res.data || [];
+        setNeeds(Array.isArray(needs) ? needs : []);
       } catch (error) {
         console.error('Error fetching needs:', error);
+        setNeeds([]);
       } finally {
         setLoadingNeeds(false);
       }

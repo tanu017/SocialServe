@@ -21,11 +21,14 @@ export default function BrowseNeedsPage() {
       setLoading(true);
       try {
         const response = await getNeeds({ ...filters, page: currentPage });
-        setPosts(response.data.data || response.data);
-        setTotalPages(response.data.totalPages || 1);
+        // Try both response shapes
+        const posts = response.data?.data || response.data?.needs || response.data || [];
+        setPosts(Array.isArray(posts) ? posts : []);
+        setTotalPages(response.data?.totalPages || 1);
       } catch (error) {
         toast.error('Failed to load needs');
         console.error(error);
+        setPosts([]);
       } finally {
         setLoading(false);
       }
