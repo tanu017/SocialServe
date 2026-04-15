@@ -284,13 +284,53 @@ router.delete('/:id', protect, authorize('donator'), async (req, res) => {
   }
 });
 
-// 7. POST /:id/need — Request a donation (placeholder)
+// 7. POST /:id/need — Request a donation (create/retrieve conversation)
 router.post('/:id/need', protect, authorize('receiver'), async (req, res) => {
   try {
-    res.json({
+    // Find the donation post
+    const post = await DonationPost.findById(req.params.id);
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: 'Post not found',
+        data: null,
+      });
+    }
+
+    // Import Conversation model
+    const { default: Conversation } = await import('../models/Conversation.js');
+
+    // Check if conversation already exists
+    const existingConversation = await Conversation.findOne({
+      participants: { $all: [req.user._id, post.donator] },
+      relatedPost: post._id,
+    });
+
+    if (existingConversation) {
+      return res.json({
+        success: true,
+        message: 'Conversation already exists',
+        data: {
+          conversationId: existingConversation._id,
+        },
+      });
+    }
+
+    // Create new conversation
+    const newConversation = new Conversation({
+      participants: [req.user._id, post.donator],
+      relatedPost: post._id,
+      postType: 'donation',
+    });
+
+    await newConversation.save();
+
+    res.status(201).json({
       success: true,
-      message: 'Conversation will be created',
-      data: null,
+      message: 'Conversation created successfully',
+      data: {
+        conversationId: newConversation._id,
+      },
     });
   } catch (error) {
     res.status(400).json({

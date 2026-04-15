@@ -49,11 +49,12 @@ export default function BrowseNeedsPage() {
     }
 
     try {
-      await helpNeed(postId);
+      const response = await helpNeed(postId);
+      const conversationId = response.data?.data?.conversationId || response.data?.conversationId;
       toast.success('You offered to help! Check your messages.');
       
-      // Navigate to donator dashboard messages section
-      navigate('/dashboard/donator?tab=messages');
+      // Navigate to donator dashboard messages section with conversationId
+      navigate(`/dashboard/donator/messages/${conversationId}`);
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to offer help');
       console.error(error);

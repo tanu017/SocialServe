@@ -21,12 +21,15 @@ const PostCard = ({ post, type, onCTAClick }) => {
     unit = 'pcs',
     location = { city: 'Unknown', state: 'Unknown' },
     images = [],
-    postedBy = {},
+    donator = {},
+    receiver = {},
     status = 'open',
   } = post;
 
-  const posterName = postedBy?.name || 'Anonymous';
-  const isVerified = postedBy?.isVerified || false;
+  // Use donator for donations, receiver for needs
+  const posterInfo = type === 'donation' ? donator : receiver;
+  const posterName = posterInfo?.name || 'Anonymous';
+  const isVerified = posterInfo?.isVerified || false;
 
   // Condition badge colors for donations
   const conditionColorMap = {

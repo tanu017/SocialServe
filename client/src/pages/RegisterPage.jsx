@@ -126,7 +126,7 @@ export default function RegisterPage() {
       <div className="max-w-md w-full mx-auto mt-20 bg-white rounded-2xl border border-gray-200 p-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-green-600 mb-2">GiveHub</h1>
+          <h1 className="text-3xl font-bold text-green-600 mb-2">SocialServe</h1>
           <h2 className="text-2xl font-semibold text-gray-900">Create your account</h2>
         </div>
 

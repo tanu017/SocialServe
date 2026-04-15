@@ -272,13 +272,53 @@ router.delete('/:id', protect, authorize('receiver'), async (req, res) => {
   }
 });
 
-// 7. POST /:id/help — Offer help for a need (placeholder)
+// 7. POST /:id/help — Offer help for a need (create/retrieve conversation)
 router.post('/:id/help', protect, authorize('donator'), async (req, res) => {
   try {
-    res.json({
+    // Find the need post
+    const post = await NeedPost.findById(req.params.id);
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: 'Post not found',
+        data: null,
+      });
+    }
+
+    // Import Conversation model
+    const { default: Conversation } = await import('../models/Conversation.js');
+
+    // Check if conversation already exists
+    const existingConversation = await Conversation.findOne({
+      participants: { $all: [req.user._id, post.receiver] },
+      relatedPost: post._id,
+    });
+
+    if (existingConversation) {
+      return res.json({
+        success: true,
+        message: 'Conversation already exists',
+        data: {
+          conversationId: existingConversation._id,
+        },
+      });
+    }
+
+    // Create new conversation
+    const newConversation = new Conversation({
+      participants: [req.user._id, post.receiver],
+      relatedPost: post._id,
+      postType: 'need',
+    });
+
+    await newConversation.save();
+
+    res.status(201).json({
       success: true,
-      message: 'Conversation will be created',
-      data: null,
+      message: 'Conversation created successfully',
+      data: {
+        conversationId: newConversation._id,
+      },
     });
   } catch (error) {
     res.status(400).json({

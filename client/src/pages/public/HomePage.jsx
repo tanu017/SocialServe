@@ -47,20 +47,19 @@ export default function HomePage() {
   }, []);
 
   // Handle donation CTA click
-  const handleDonationCTA = (donationId) => {
+  const handleDonationCTA = async (donationId) => {
     if (!isAuthenticated) {
       navigate('/login');
       return;
     }
     
-    needDonation(donationId)
-      .then(() => {
-        // Show success message or navigate to detail page
-        navigate(`/donation/${donationId}`);
-      })
-      .catch((error) => {
-        console.error('Error requesting donation:', error);
-      });
+    try {
+      const response = await needDonation(donationId);
+      const conversationId = response.data?.data?.conversationId || response.data?.conversationId;
+      navigate(`/dashboard/receiver/messages/${conversationId}`);
+    } catch (error) {
+      console.error('Error requesting donation:', error);
+    }
   };
 
   return (

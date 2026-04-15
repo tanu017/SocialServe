@@ -49,11 +49,12 @@ export default function BrowseDonationsPage() {
     }
 
     try {
-      await needDonation(postId);
+      const response = await needDonation(postId);
+      const conversationId = response.data?.data?.conversationId || response.data?.conversationId;
       toast.success('Conversation started! Check your messages.');
       
-      // Navigate to donator dashboard messages section
-      navigate('/dashboard/donator?tab=messages');
+      // Navigate to receiver dashboard messages section with conversationId
+      navigate(`/dashboard/receiver/messages/${conversationId}`);
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to request donation');
       console.error(error);

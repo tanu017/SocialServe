@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { getDonationById, needDonation } from '../../services/postService';
 import { useAuth } from '../../context/AuthContext';
 import { formatDistanceToNow } from 'date-fns';
@@ -36,12 +37,13 @@ const DonationDetailPage = () => {
   const handleNeed = async () => {
     try {
       setLoadingRequest(true);
-      await needDonation(id);
-      // Success notification would go here (e.g., toast)
-      navigate('/dashboard/receiver/messages');
+      const response = await needDonation(id);
+      const conversationId = response.data?.data?.conversationId || response.data?.conversationId;
+      toast.success('Conversation started! Check your messages.');
+      navigate(`/dashboard/receiver/messages/${conversationId}`);
     } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to request donation');
       console.error(err);
-      // Error notification would go here (e.g., toast error)
     } finally {
       setLoadingRequest(false);
     }
@@ -110,8 +112,8 @@ const DonationDetailPage = () => {
   const statusColor = statusColorMap[status] || statusColorMap.open;
 
   // Determine CTA button state
-  const isReceiver = isAuthenticated && user?.userType === 'receiver';
-  const isDonator = isAuthenticated && user?.userType === 'donator';
+  const isReceiver = isAuthenticated && user?.role === 'receiver';
+  const isDonator = isAuthenticated && user?.role === 'donator';
   const isCTADisabled = !isReceiver && isAuthenticated;
 
   return (
