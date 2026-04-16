@@ -65,7 +65,7 @@ const PostCard = ({ post, type, onCTAClick }) => {
 
   const handleCTAClick = () => {
     if (onCTAClick) {
-      onCTAClick(post);
+      onCTAClick(_id || post?._id);
     }
   };
 

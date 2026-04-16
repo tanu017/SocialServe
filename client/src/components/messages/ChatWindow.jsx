@@ -97,8 +97,11 @@ export default function ChatWindow({ conversation, onBack, currentUser }) {
     if (!socket) return undefined;
 
     const handleMessageReceive = (msg) => {
-      if (msg?.conversation && msg.conversation !== conversationId) return;
-      if (msg?.conversation?._id && msg.conversation._id !== conversationId) return;
+      const messageConversationId =
+        typeof msg?.conversation === 'string'
+          ? msg.conversation
+          : msg?.conversation?._id || msg?.conversation?.toString?.() || null;
+      if (messageConversationId && messageConversationId !== conversationId) return;
 
       setMessages((prev) => {
         if (msg?._id && prev.some((existing) => existing?._id === msg._id)) {

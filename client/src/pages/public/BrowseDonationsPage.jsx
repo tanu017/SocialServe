@@ -8,7 +8,7 @@ import PostGrid from '../../components/posts/PostGrid';
 
 export default function BrowseDonationsPage() {
   const navigate = useNavigate();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated } = useAuth();
   const [filters, setFilters] = useState({});
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -21,10 +21,12 @@ export default function BrowseDonationsPage() {
       setLoading(true);
       try {
         const response = await getDonations({ ...filters, page: currentPage });
-        // Try both response shapes
-        const posts = response.data?.data || response.data?.donations || response.data || [];
+        const responseData = response?.data || {};
+        const data = responseData?.data || {};
+        const posts = data?.posts || responseData?.donations || responseData || [];
+        const pages = data?.pagination?.pages || responseData?.totalPages || 1;
         setPosts(Array.isArray(posts) ? posts : []);
-        setTotalPages(response.data?.totalPages || 1);
+        setTotalPages(Number.isFinite(Number(pages)) ? Number(pages) : 1);
       } catch (error) {
         toast.error('Failed to load donations');
         console.error(error);

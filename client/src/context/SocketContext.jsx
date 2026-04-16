@@ -7,6 +7,7 @@ const SocketContext = createContext(null);
 export const SocketProvider = ({ children }) => {
   const { isAuthenticated, token } = useAuth();
   const socketRef = useRef(null);
+  const [socket, setSocket] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
@@ -18,7 +19,13 @@ export const SocketProvider = ({ children }) => {
       });
       socketRef.current = socket;
 
-      socket.on('connect', () => console.log('Socket connected:', socket.id));
+      socket.on('connect', () => {
+        setSocket(socket);
+        console.log('Socket connected:', socket.id);
+      });
+      socket.on('disconnect', () => {
+        setSocket(null);
+      });
       socket.on('connect_error', (err) => console.error('Socket error:', err.message));
 
       // Listen for new message notifications -> increment unreadCount
@@ -41,7 +48,7 @@ export const SocketProvider = ({ children }) => {
   }, [isAuthenticated, token]);
 
   const value = {
-    socket: socketRef.current,
+    socket,
     unreadCount,
     setUnreadCount,
     joinConversation: (id) => socketRef.current?.emit('join:conversation', id),
