@@ -12,6 +12,49 @@ export default function LoginPage() {
   const [loginAs, setLoginAs] = useState('donator');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const pageStyle = {
+    minHeight: '90vh',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: '#f3f3f3',
+    padding: '16px',
+  };
+
+  const wrapperStyle = {
+    width: '90%',
+    maxWidth: '600px',
+  };
+
+  const brandStyle = {
+    marginBottom: '20px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '10px',
+    color: '#3f3a34',
+  };
+
+  const cardStyle = {
+    background: '#f7f7f7',
+    border: '1px solid #e1e1e1',
+    borderRadius: '10px',
+    boxShadow: '0 8px 20px rgba(38, 35, 31, 0.08)',
+    paddingTop: '28px',
+    paddingBottom: '28px',
+    paddingLeft: '24px',
+    paddingRight: '24px',
+    margin: '10px',
+    boxSizing: 'border-box',
+  };
+
+  const controlStyle = {
+    borderRadius: '5px',
+    padding: '15px',
+    boxSizing: 'border-box',
+    width: '100%',
+    maxWidth: '100%',
+  };
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -68,29 +111,29 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f3f3f3] px-4">
-      <div className="w-full max-w-md">
-        <div className="mb-8 flex items-center justify-center gap-2 text-[#3f3a34]">
-          <span className="text-2xl leading-none">❤</span>
-          <h1 className="text-4xl font-semibold tracking-tight">SocialServe</h1>
+    <div className="min-h-screen flex items-center justify-center bg-[#f3f3f3] px-4" style={pageStyle}>
+      <div className="w-full max-w-md" style={wrapperStyle}>
+        <div className="mb-8 flex items-center justify-center gap-2 text-[#3f3a34]" style={brandStyle}>
+          <span className="text-[40px] leading-none">❤</span>
+          <h1 className="text-[60px] font-semibold tracking-tight">SocialServe</h1>
         </div>
 
-        <div className="bg-[#f7f7f7] border border-[#e1e1e1] rounded-2xl shadow-sm px-7 py-8">
-          <div className="mb-6">
-            <h2 className="text-[32px] font-semibold text-[#34312d] leading-tight">Welcome Back</h2>
+        <div className="bg-[#f7f7f7] border border-[#e1e1e1] rounded-2xl shadow-sm px-3 py-4" style={cardStyle}>
+          <div className="mb-2">
+            <h2 className="text-[35px] font-semibold text-[#34312d] leading-tight">Welcome Back</h2>
             <p className="text-[#6f6b67] mt-1 text-lg">Log in to your account to continue</p>
           </div>
 
           {/* Error Message */}
           {error && (
             <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-3 py-2">
-              <p className="text-sm font-medium text-red-700">{error}</p>
+              <p className="text-[18px] font-medium text-red-700">{error}</p>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-2">
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-[#4b4743] mb-2">
+              <label htmlFor="email" className="block text-[20px] font-semibold text-[#4b4743] mb-2">
                 Email
               </label>
               <input
@@ -100,12 +143,13 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="w-full rounded-lg border border-[#ece8e4] bg-[#eeecea] px-4 py-2.5 text-[#383532] placeholder:text-[#8f8b88] focus:outline-none focus:ring-2 focus:ring-[#8b6b42]/35 focus:border-[#8b6b42]/60 transition"
+                className="w-full rounded-lg border border-[#ece8e4] bg-[#FBF4F0] px-4 py-2.5 text-[18px] placeholder:text-[18px] text-[#383532] placeholder:text-[#8f8b88] focus:outline-none focus:ring-2 focus:ring-[#8b6b42]/35 mb-6 focus:border-[#8b6b42]/60 transition mt-10px"
+                style={controlStyle}
               />
             </div>
-
+            <br />
             <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-[#4b4743] mb-2">
+              <label htmlFor="password" className="block text-[20px] font-semibold text-[#4b4743] mb-2">
                 Password
               </label>
               <input
@@ -115,13 +159,14 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full rounded-lg border border-[#ece8e4] bg-[#eeecea] px-4 py-2.5 text-[#383532] placeholder:text-[#8f8b88] focus:outline-none focus:ring-2 focus:ring-[#8b6b42]/35 focus:border-[#8b6b42]/60 transition"
+                className="w-full rounded-lg border border-[#ece8e4] bg-[#FBF4F0] px-4 py-2.5 text-[#383532] placeholder:text-[#8f8b88] focus:outline-none focus:ring-2 focus:ring-[#8b6b42]/35 focus:border-[#8b6b42]/60 transition"
+                style={controlStyle}
               />
             </div>
 
             <div>
-              <p className="text-sm font-semibold text-[#4b4743] mb-2">I am a</p>
-              <div className="space-y-1.5 text-[15px] text-[#3f3a35]">
+              <p className="text-[18px] font-semibold text-[#4b4743] mb-2">I am a</p>
+              <div className="space-y-0 text-[20px] text-[#3f3a35]">
                 <label className="inline-flex items-center gap-2 cursor-pointer">
                   <input
                     type="radio"
@@ -150,7 +195,8 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full rounded-lg bg-[#8f6f45] hover:bg-[#7e5f3a] disabled:bg-[#b69d7d] text-white font-medium py-2.5 transition flex items-center justify-center gap-2"
+              className="w-full rounded-2xl bg-[#94734a] hover:bg-[#7e5f3a] disabled:bg-[#b69d7d] text-[18px] font-medium py-2.5 transition flex items-center justify-center gap-2"
+              style={controlStyle}
             >
               {isLoading ? (
                 <>
