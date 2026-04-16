@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useSocket } from '../../context/SocketContext';
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated, user, logout, loading } = useAuth();
+  const { unreadCount } = useSocket();
 
   const isActive = (path) => location.pathname === path;
 
@@ -101,9 +103,14 @@ export default function Navbar() {
                 <div className="hidden sm:flex items-center space-x-4">
                   <Link
                     to={getDashboardLink()}
-                    className="text-gray-600 hover:text-green-600 transition-colors"
+                    className="relative inline-flex items-center text-gray-600 hover:text-green-600 transition-colors"
                   >
                     {getDashboardLabel()}
+                    {unreadCount > 0 ? (
+                      <span className="absolute -top-2 -right-4 flex h-5 min-w-5 items-center justify-center rounded-full bg-green-500 px-1.5 text-[10px] font-semibold text-white">
+                        {unreadCount}
+                      </span>
+                    ) : null}
                   </Link>
 
                   {/* Avatar */}
@@ -198,10 +205,15 @@ export default function Navbar() {
                 <div className="space-y-3">
                   <Link
                     to={getDashboardLink()}
-                    className="block py-2 text-gray-600"
+                    className="relative inline-flex py-2 text-gray-600"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     {getDashboardLabel()}
+                    {unreadCount > 0 ? (
+                      <span className="absolute -top-0.5 -right-6 flex h-5 min-w-5 items-center justify-center rounded-full bg-green-500 px-1.5 text-[10px] font-semibold text-white">
+                        {unreadCount}
+                      </span>
+                    ) : null}
                   </Link>
                   <button
                     onClick={handleLogout}

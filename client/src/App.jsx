@@ -12,9 +12,15 @@ import NeedDetailPage from './pages/public/NeedDetailPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import PublicProfilePage from './pages/PublicProfilePage';
-import DonatorDashboard from './pages/DonatorDashboard';
-import ReceiverDashboard from './pages/ReceiverDashboard';
-import AdminDashboard from './pages/AdminDashboard';
+import DonatorDashboard from './pages/donator/DonatorDashboard';
+import DonatorMyPostsPage from './pages/donator/DonatorMyPostsPage';
+import DonationPostFormPage from './pages/donator/DonationPostFormPage';
+import DonatorInboxPage from './pages/donator/DonatorInboxPage';
+import ReceiverDashboard from './pages/receiver/ReceiverDashboard';
+import ReceiverMyNeedsPage from './pages/receiver/ReceiverMyNeedsPage';
+import NeedPostFormPage from './pages/receiver/NeedPostFormPage';
+import ReceiverInboxPage from './pages/receiver/ReceiverInboxPage';
+import AdminPlaceholder from './pages/AdminDashboard';
 
 function App() {
   return (
@@ -35,18 +41,98 @@ function App() {
 
           {/* Protected Routes */}
           <Route
-            path="/dashboard/donator/*"
+            path="/dashboard/donator"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['donator']}>
                 <DonatorDashboard />
               </ProtectedRoute>
             }
           />
           <Route
-            path="/dashboard/receiver/*"
+            path="/dashboard/donator/posts"
             element={
-              <ProtectedRoute>
+              <ProtectedRoute allowedRoles={['donator']}>
+                <DonatorMyPostsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/donator/posts/new"
+            element={
+              <ProtectedRoute allowedRoles={['donator']}>
+                <DonationPostFormPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/donator/posts/edit/:id"
+            element={
+              <ProtectedRoute allowedRoles={['donator']}>
+                <DonationPostFormPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/donator/messages"
+            element={
+              <ProtectedRoute allowedRoles={['donator']}>
+                <DonatorInboxPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/donator/messages/:conversationId"
+            element={
+              <ProtectedRoute allowedRoles={['donator']}>
+                <DonatorInboxPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/receiver"
+            element={
+              <ProtectedRoute allowedRoles={['receiver']}>
                 <ReceiverDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/receiver/needs"
+            element={
+              <ProtectedRoute allowedRoles={['receiver']}>
+                <ReceiverMyNeedsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/receiver/needs/new"
+            element={
+              <ProtectedRoute allowedRoles={['receiver']}>
+                <NeedPostFormPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/receiver/needs/edit/:id"
+            element={
+              <ProtectedRoute allowedRoles={['receiver']}>
+                <NeedPostFormPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/receiver/messages"
+            element={
+              <ProtectedRoute allowedRoles={['receiver']}>
+                <ReceiverInboxPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/receiver/messages/:conversationId"
+            element={
+              <ProtectedRoute allowedRoles={['receiver']}>
+                <ReceiverInboxPage />
               </ProtectedRoute>
             }
           />
@@ -54,7 +140,7 @@ function App() {
             path="/admin/*"
             element={
               <ProtectedRoute allowedRoles={['admin']}>
-                <AdminDashboard />
+                <AdminPlaceholder />
               </ProtectedRoute>
             }
           />

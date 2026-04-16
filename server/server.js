@@ -1,11 +1,14 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
 import connectDB from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
 import donationRoutes from './routes/donationRoutes.js';
 import needRoutes from './routes/needRoutes.js';
 import messageRoutes from './routes/messageRoutes.js';
+import initSocket from './socket/index.js';
 
 // Load env vars
 dotenv.config();
@@ -14,6 +17,12 @@ dotenv.config();
 connectDB();
 
 const app = express();
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+  cors: { origin: process.env.CLIENT_URL || '*', methods: ['GET', 'POST'] }
+});
+initSocket(io);
+app.set('io', io);
 
 // Middleware
 app.use(express.json());
@@ -52,6 +61,6 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 5050;
 
-app.listen(PORT, () => {
+httpServer.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
