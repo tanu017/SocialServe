@@ -23,7 +23,13 @@ export const AuthProvider = ({ children }) => {
         // Verify token is still valid
         try {
           const response = await getMe();
-          setUser(response.data.data || response.data);
+          // API returns { data: { user: {...} } } — use inner user so role checks work after refresh
+          const payload = response?.data?.data ?? response?.data;
+          const nextUser = payload?.user ?? payload;
+          if (!nextUser?._id) {
+            throw new Error('Invalid user session');
+          }
+          setUser(nextUser);
           setIsAuthenticated(true);
         } catch (error) {
           // Token is invalid, clear storage
