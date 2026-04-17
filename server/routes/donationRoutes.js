@@ -8,13 +8,14 @@ const router = express.Router();
 // 1. GET / — Get all open donation posts with filters
 router.get('/', async (req, res) => {
   try {
-    const { category, city, condition, page = 1, limit = 12 } = req.query;
+    const { category, city, condition, donatorId, page = 1, limit = 12 } = req.query;
 
     const filter = { status: 'open' };
 
     if (category) filter.category = category;
     if (condition) filter.condition = condition;
     if (city) filter['location.city'] = city;
+    if (donatorId) filter.donator = donatorId;
 
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
@@ -34,6 +35,9 @@ router.get('/', async (req, res) => {
       message: 'Posts retrieved successfully',
       data: {
         posts,
+        total,
+        page: pageNum,
+        pages,
         pagination: {
           total,
           page: pageNum,

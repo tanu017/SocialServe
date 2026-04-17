@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { loginUser, registerUser, logoutUser, getMe } from '../services/authService';
 
 const AuthContext = createContext();
@@ -54,6 +55,8 @@ export const AuthProvider = ({ children }) => {
       return response.data;
     } catch (error) {
       setIsAuthenticated(false);
+      const message = error?.response?.data?.message || error?.message || 'Login failed. Please try again.';
+      toast.error(message);
       throw error;
     }
   };
@@ -73,6 +76,8 @@ export const AuthProvider = ({ children }) => {
       return response.data;
     } catch (error) {
       setIsAuthenticated(false);
+      const message = error?.response?.data?.message || error?.message || 'Registration failed. Please try again.';
+      toast.error(message);
       throw error;
     }
   };

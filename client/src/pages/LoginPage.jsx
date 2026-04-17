@@ -95,7 +95,6 @@ export default function LoginPage() {
     } catch (err) {
       const errorMessage = err.response?.data?.message || err.message || 'Login failed. Please try again.';
       setError(errorMessage);
-      toast.error(errorMessage);
       console.error('Login error:', err);
     } finally {
       setIsLoading(false);

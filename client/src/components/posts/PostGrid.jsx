@@ -2,19 +2,19 @@ import React from 'react';
 import PostCard from './PostCard';
 
 const PostGrid = ({ posts, type, loading, onCTAClick }) => {
-  // Skeleton loader for loading state
+  // Skeleton loader — matches PostCard layout (image h-48, body, two action buttons)
   const SkeletonCard = () => (
-    <div className="bg-gray-200 rounded-xl border border-gray-200 overflow-hidden animate-pulse h-96">
-      <div className="h-48 bg-gray-300"></div>
-      <div className="p-4 space-y-2">
-        <div className="h-4 bg-gray-300 rounded w-3/4"></div>
-        <div className="h-3 bg-gray-300 rounded w-full"></div>
-        <div className="h-3 bg-gray-300 rounded w-5/6"></div>
-        <div className="h-3 bg-gray-300 rounded w-1/2 mt-4"></div>
-        <div className="h-3 bg-gray-300 rounded w-2/3"></div>
-        <div className="flex gap-2 mt-4">
-          <div className="flex-1 h-8 bg-gray-300 rounded"></div>
-          <div className="flex-1 h-8 bg-gray-300 rounded"></div>
+    <div className="flex h-full flex-col overflow-hidden rounded-xl border border-gray-200 bg-white">
+      <div className="h-48 animate-pulse rounded-t-xl bg-gray-200" />
+      <div className="flex flex-grow flex-col p-4">
+        <div className="space-y-2">
+          <div className="h-3 animate-pulse rounded bg-gray-200" style={{ width: '60%' }} />
+          <div className="h-3 animate-pulse rounded bg-gray-200" style={{ width: '90%' }} />
+          <div className="h-3 animate-pulse rounded bg-gray-200" style={{ width: '40%' }} />
+        </div>
+        <div className="mt-auto flex gap-2 pt-4">
+          <div className="h-9 flex-1 animate-pulse rounded-lg bg-gray-200" />
+          <div className="h-9 flex-1 animate-pulse rounded-lg bg-gray-200" />
         </div>
       </div>
     </div>

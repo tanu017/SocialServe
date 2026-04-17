@@ -25,6 +25,7 @@ const DonationDetailPage = () => {
         setError(null);
       } catch (err) {
         setError('Failed to load donation details');
+        toast.error(err?.response?.data?.message || 'Failed to load donation details');
         console.error(err);
       } finally {
         setLoading(false);
@@ -35,6 +36,15 @@ const DonationDetailPage = () => {
   }, [id]);
 
   const handleNeed = async () => {
+    if (!isAuthenticated) {
+      toast.error('Please log in to request this donation.');
+      navigate('/login');
+      return;
+    }
+    if (user?.role !== 'receiver') {
+      toast.error('Only receivers can request donations.');
+      return;
+    }
     try {
       setLoadingRequest(true);
       const response = await needDonation(id);
@@ -50,6 +60,7 @@ const DonationDetailPage = () => {
   };
 
   const handleLoginRedirect = () => {
+    toast.error('Please log in to request this donation.');
     navigate('/login');
   };
 

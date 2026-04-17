@@ -46,6 +46,19 @@ export default function Navbar() {
     }
   };
 
+  const isAdmin = user?.role === 'admin';
+  const getMessagesLink = () => {
+    switch (user?.role) {
+      case 'donator':
+        return '/dashboard/donator/messages';
+      case 'receiver':
+        return '/dashboard/receiver/messages';
+      default:
+        return null;
+    }
+  };
+  const messagesLink = getMessagesLink();
+
   return (
     <nav className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50 h-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
@@ -103,15 +116,30 @@ export default function Navbar() {
                 <div className="hidden sm:flex items-center space-x-4">
                   <Link
                     to={getDashboardLink()}
-                    className="relative inline-flex items-center text-gray-600 hover:text-green-600 transition-colors"
+                    className={`relative inline-flex items-center gap-2 transition-colors ${
+                      isAdmin ? 'text-red-600 hover:text-red-700' : 'text-gray-600 hover:text-green-600'
+                    }`}
                   >
                     {getDashboardLabel()}
-                    {unreadCount > 0 ? (
-                      <span className="absolute -top-2 -right-4 flex h-5 min-w-5 items-center justify-center rounded-full bg-green-500 px-1.5 text-[10px] font-semibold text-white">
-                        {unreadCount}
+                    {isAdmin ? (
+                      <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold uppercase text-red-700">
+                        Admin
                       </span>
                     ) : null}
                   </Link>
+                  {messagesLink ? (
+                    <Link
+                      to={messagesLink}
+                      className="relative inline-flex items-center text-gray-600 transition-colors hover:text-green-600"
+                    >
+                      Messages
+                      {unreadCount > 0 ? (
+                        <span className="absolute -top-2 -right-4 flex h-5 min-w-5 items-center justify-center rounded-full bg-green-500 px-1.5 text-[10px] font-semibold text-white">
+                          {unreadCount}
+                        </span>
+                      ) : null}
+                    </Link>
+                  ) : null}
 
                   {/* Avatar */}
                   <div className="flex-shrink-0">
@@ -205,16 +233,32 @@ export default function Navbar() {
                 <div className="space-y-3">
                   <Link
                     to={getDashboardLink()}
-                    className="relative inline-flex py-2 text-gray-600"
+                    className={`relative inline-flex items-center gap-2 py-2 ${
+                      isAdmin ? 'text-red-600' : 'text-gray-600'
+                    }`}
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     {getDashboardLabel()}
-                    {unreadCount > 0 ? (
-                      <span className="absolute -top-0.5 -right-6 flex h-5 min-w-5 items-center justify-center rounded-full bg-green-500 px-1.5 text-[10px] font-semibold text-white">
-                        {unreadCount}
+                    {isAdmin ? (
+                      <span className="rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold uppercase text-red-700">
+                        Admin
                       </span>
                     ) : null}
                   </Link>
+                  {messagesLink ? (
+                    <Link
+                      to={messagesLink}
+                      className="relative inline-flex items-center py-2 text-gray-600"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Messages
+                      {unreadCount > 0 ? (
+                        <span className="absolute -top-0.5 -right-6 flex h-5 min-w-5 items-center justify-center rounded-full bg-green-500 px-1.5 text-[10px] font-semibold text-white">
+                          {unreadCount}
+                        </span>
+                      ) : null}
+                    </Link>
+                  ) : null}
                   <button
                     onClick={handleLogout}
                     className="w-full px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors"

@@ -106,7 +106,6 @@ export default function RegisterPage() {
     } catch (err) {
       const errorMessage = err.response?.data?.message || err.message || 'Registration failed. Please try again.';
       setError(errorMessage);
-      toast.error(errorMessage);
       console.error('Registration error:', err);
     } finally {
       setIsLoading(false);

@@ -5,6 +5,9 @@ import { getDonations, needDonation } from '../../services/postService';
 import { useAuth } from '../../context/AuthContext';
 import PostFilters from '../../components/posts/PostFilters';
 import PostGrid from '../../components/posts/PostGrid';
+import Pagination from '../../components/common/Pagination';
+
+const PAGE_SIZE = 12;
 
 export default function BrowseDonationsPage() {
   const navigate = useNavigate();
@@ -20,11 +23,15 @@ export default function BrowseDonationsPage() {
     const fetchDonations = async () => {
       setLoading(true);
       try {
-        const response = await getDonations({ ...filters, page: currentPage });
+        const response = await getDonations({ ...filters, page: currentPage, limit: PAGE_SIZE });
         const responseData = response?.data || {};
         const data = responseData?.data || {};
         const posts = data?.posts || responseData?.donations || responseData || [];
-        const pages = data?.pagination?.pages || responseData?.totalPages || 1;
+        const pages =
+          data?.pages ??
+          data?.pagination?.pages ??
+          responseData?.totalPages ??
+          (data?.total != null ? Math.ceil(Number(data.total) / PAGE_SIZE) : 1);
         setPosts(Array.isArray(posts) ? posts : []);
         setTotalPages(Number.isFinite(Number(pages)) ? Number(pages) : 1);
       } catch (error) {
@@ -41,11 +48,17 @@ export default function BrowseDonationsPage() {
 
   const handleFiltersChange = (newFilters) => {
     setFilters(newFilters);
-    setCurrentPage(1); // Reset to page 1 when filters change
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (nextPage) => {
+    setCurrentPage(nextPage);
+    window.scrollTo(0, 0);
   };
 
   const handleNeed = async (postId) => {
     if (!isAuthenticated) {
+      toast.error('Please log in to request a donation.');
       navigate('/login');
       return;
     }
@@ -95,28 +108,11 @@ export default function BrowseDonationsPage() {
               onCTAClick={handleNeed}
             />
 
-            {/* Pagination */}
-            <div className="mt-12 flex items-center justify-between">
-              <button
-                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                disabled={currentPage === 1}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition"
-              >
-                ← Previous
-              </button>
-
-              <span className="text-gray-700 font-medium">
-                Page {currentPage} of {totalPages}
-              </span>
-
-              <button
-                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                disabled={currentPage === totalPages}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition"
-              >
-                Next →
-              </button>
-            </div>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
           </div>
         </div>
       </div>

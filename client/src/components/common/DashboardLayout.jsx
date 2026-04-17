@@ -69,7 +69,13 @@ const renderIcon = (icon) => {
   return icon || Icons.grid;
 };
 
-export default function DashboardLayout({ sidebarLinks = [], children, pageTitle }) {
+export default function DashboardLayout({
+  sidebarLinks = [],
+  children,
+  pageTitle,
+  sidebarHeaderBadge,
+  sidebarHeaderBadgeClassName = 'bg-rose-100 text-rose-700'
+}) {
   const location = useLocation();
   const { user, logout } = useAuth();
   const { unreadCount } = useSocket();
@@ -78,7 +84,14 @@ export default function DashboardLayout({ sidebarLinks = [], children, pageTitle
     <div className="flex h-screen overflow-hidden">
       <aside className="hidden w-64 flex-col border-r border-gray-200 bg-white md:flex">
         <div className="border-b border-gray-200 p-4">
-          <Link to="/" className="text-xl font-bold text-[#1D9E75]">
+          {sidebarHeaderBadge ? (
+            <span
+              className={`mb-2 inline-flex rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${sidebarHeaderBadgeClassName}`}
+            >
+              {sidebarHeaderBadge}
+            </span>
+          ) : null}
+          <Link to="/" className="block text-xl font-bold text-[#1D9E75]">
             GiveHub
           </Link>
           <div className="mt-4 flex items-center gap-3">
@@ -103,7 +116,12 @@ export default function DashboardLayout({ sidebarLinks = [], children, pageTitle
             <NavLink
               key={link.to}
               to={link.to}
-              end={link.to === '/dashboard/donator' || link.to === '/dashboard/receiver'}
+              end={Boolean(
+                link.end ||
+                  link.to === '/dashboard/donator' ||
+                  link.to === '/dashboard/receiver' ||
+                  link.to === '/admin'
+              )}
               className={({ isActive }) =>
                 `flex items-center justify-between rounded-lg px-3 py-2 text-sm transition ${
                   isActive
@@ -116,9 +134,9 @@ export default function DashboardLayout({ sidebarLinks = [], children, pageTitle
                 {renderIcon(link.icon)}
                 {link.label}
               </span>
-              {link.badge && link.badge > 0 ? (
+              {(link.badge > 0 || (String(link.label).toLowerCase() === 'messages' && unreadCount > 0)) ? (
                 <span className="rounded-full bg-green-500 px-2 py-0.5 text-[10px] font-semibold text-white">
-                  {link.badge}
+                  {link.badge > 0 ? link.badge : unreadCount}
                 </span>
               ) : null}
             </NavLink>
@@ -139,7 +157,7 @@ export default function DashboardLayout({ sidebarLinks = [], children, pageTitle
       <main className="flex-1 overflow-y-auto bg-gray-50">
         <div className="flex items-center justify-between border-b bg-white px-6 py-3">
           <h1 className="text-lg font-semibold text-gray-900">{pageTitle || deriveTitle(location.pathname)}</h1>
-          <div className="relative text-gray-600">
+          <div className={`relative ${unreadCount > 0 ? 'text-green-600' : 'text-gray-600'}`} aria-live="polite">
             {Icons.bell}
             {unreadCount > 0 ? (
               <span className="absolute -top-1.5 -right-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-green-500 px-1.5 text-[10px] font-semibold text-white">

@@ -8,13 +8,14 @@ const router = express.Router();
 // 1. GET / — Get all open need posts with filters
 router.get('/', async (req, res) => {
   try {
-    const { category, city, urgency, page = 1, limit = 12 } = req.query;
+    const { category, city, urgency, receiverId, page = 1, limit = 12 } = req.query;
 
     const filter = { status: 'open' };
 
     if (category) filter.category = category;
     if (urgency) filter.urgency = urgency;
     if (city) filter['location.city'] = city;
+    if (receiverId) filter.receiver = receiverId;
 
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
@@ -34,6 +35,9 @@ router.get('/', async (req, res) => {
       message: 'Posts retrieved successfully',
       data: {
         posts,
+        total,
+        page: pageNum,
+        pages,
         pagination: {
           total,
           page: pageNum,

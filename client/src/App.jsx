@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import Navbar from './components/common/Navbar';
+import ErrorBoundary from './components/common/ErrorBoundary';
 import ProtectedRoute from './components/routing/ProtectedRoute';
 
 // Pages
@@ -11,7 +12,7 @@ import DonationDetailPage from './pages/public/DonationDetailPage';
 import NeedDetailPage from './pages/public/NeedDetailPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
-import PublicProfilePage from './pages/PublicProfilePage';
+import PublicProfilePage from './pages/public/PublicProfilePage';
 import DonatorDashboard from './pages/donator/DonatorDashboard';
 import DonatorMyPostsPage from './pages/donator/DonatorMyPostsPage';
 import DonationPostFormPage from './pages/donator/DonationPostFormPage';
@@ -20,15 +21,43 @@ import ReceiverDashboard from './pages/receiver/ReceiverDashboard';
 import ReceiverMyNeedsPage from './pages/receiver/ReceiverMyNeedsPage';
 import NeedPostFormPage from './pages/receiver/NeedPostFormPage';
 import ReceiverInboxPage from './pages/receiver/ReceiverInboxPage';
-import AdminPlaceholder from './pages/AdminDashboard';
+import AdminDashboardPage from './pages/admin/AdminDashboardPage';
+import AdminUserListPage from './pages/admin/AdminUserListPage';
+import AdminUserDetailPage from './pages/admin/AdminUserDetailPage';
+import AdminDonationsPage from './pages/admin/AdminDonationsPage';
+import AdminNeedsPage from './pages/admin/AdminNeedsPage';
+import NotFoundPage from './pages/NotFoundPage';
+
+function AdminSettingsPlaceholder() {
+  return <div className="rounded-xl border border-gray-200 bg-white p-6">Settings coming soon</div>;
+}
 
 function App() {
   return (
     <Router>
-      <Toaster position="top-right" />
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 3500,
+          style: { borderRadius: '10px', fontSize: '14px' },
+          success: {
+            iconTheme: {
+              primary: '#22c55e',
+              secondary: '#fff'
+            }
+          },
+          error: {
+            iconTheme: {
+              primary: '#ef4444',
+              secondary: '#fff'
+            }
+          }
+        }}
+      />
       <Navbar />
       <div className="pt-16">
-        <Routes>
+        <ErrorBoundary>
+          <Routes>
           {/* Public Routes */}
           <Route path="/" element={<HomePage />} />
           <Route path="/browse/donations" element={<BrowseDonationsPage />} />
@@ -137,14 +166,56 @@ function App() {
             }
           />
           <Route
-            path="/admin/*"
+            path="/admin"
             element={
               <ProtectedRoute allowedRoles={['admin']}>
-                <AdminPlaceholder />
+                <AdminDashboardPage />
               </ProtectedRoute>
             }
           />
-        </Routes>
+          <Route
+            path="/admin/users"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminUserListPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/users/:id"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminUserDetailPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/donations"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminDonationsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/needs"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminNeedsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/settings"
+            element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminSettingsPlaceholder />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </ErrorBoundary>
       </div>
     </Router>
   );

@@ -8,6 +8,8 @@ import authRoutes from './routes/authRoutes.js';
 import donationRoutes from './routes/donationRoutes.js';
 import needRoutes from './routes/needRoutes.js';
 import messageRoutes from './routes/messageRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 import initSocket from './socket/index.js';
 
 // Load env vars
@@ -40,6 +42,8 @@ app.get('/', (req, res) => {
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/donations', donationRoutes);
 app.use('/api/v1/needs', needRoutes);
+app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/users', userRoutes);
 app.use('/api/v1', messageRoutes);
 
 // 404 handler

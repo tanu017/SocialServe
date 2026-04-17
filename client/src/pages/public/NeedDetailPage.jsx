@@ -25,6 +25,7 @@ const NeedDetailPage = () => {
         setError(null);
       } catch (err) {
         setError('Failed to load need details');
+        toast.error(err?.response?.data?.message || 'Failed to load need details');
         console.error(err);
       } finally {
         setLoading(false);
@@ -35,6 +36,15 @@ const NeedDetailPage = () => {
   }, [id]);
 
   const handleHelp = async () => {
+    if (!isAuthenticated) {
+      toast.error('Please log in to offer help.');
+      navigate('/login');
+      return;
+    }
+    if (user?.role !== 'donator') {
+      toast.error('Only donators can offer help.');
+      return;
+    }
     try {
       setLoadingRequest(true);
       const response = await helpNeed(id);
@@ -50,6 +60,7 @@ const NeedDetailPage = () => {
   };
 
   const handleLoginRedirect = () => {
+    toast.error('Please log in to offer help.');
     navigate('/login');
   };
 

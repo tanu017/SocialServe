@@ -89,25 +89,43 @@ export default function DonatorDashboard() {
     }
   };
 
+  const StatCardSkeleton = () => (
+    <div className="animate-pulse rounded-xl border border-gray-200 bg-white p-4 text-center">
+      <div className="mx-auto h-9 w-10 rounded bg-gray-200" />
+      <div className="mx-auto mt-2 h-4 w-24 rounded bg-gray-200" />
+    </div>
+  );
+
   return (
     <DashboardLayout sidebarLinks={sidebarLinks} pageTitle="Donator Dashboard">
       <div className="mb-8 grid grid-cols-2 gap-4 md:grid-cols-4">
-        <div className="rounded-xl border border-gray-200 bg-white p-4 text-center">
-          <p className="text-3xl font-bold text-green-600">{stats.open}</p>
-          <p className="mt-1 text-sm text-gray-500">Active Posts</p>
-        </div>
-        <div className="rounded-xl border border-gray-200 bg-white p-4 text-center">
-          <p className="text-3xl font-bold text-green-600">{stats.inProgress}</p>
-          <p className="mt-1 text-sm text-gray-500">In Progress</p>
-        </div>
-        <div className="rounded-xl border border-gray-200 bg-white p-4 text-center">
-          <p className="text-3xl font-bold text-green-600">{stats.donated}</p>
-          <p className="mt-1 text-sm text-gray-500">Donated</p>
-        </div>
-        <div className="rounded-xl border border-gray-200 bg-white p-4 text-center">
-          <p className="text-3xl font-bold text-green-600">{stats.total}</p>
-          <p className="mt-1 text-sm text-gray-500">Total Posts</p>
-        </div>
+        {loading ? (
+          <>
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+            <StatCardSkeleton />
+          </>
+        ) : (
+          <>
+            <div className="rounded-xl border border-gray-200 bg-white p-4 text-center">
+              <p className="text-3xl font-bold text-green-600">{stats.open}</p>
+              <p className="mt-1 text-sm text-gray-500">Active Posts</p>
+            </div>
+            <div className="rounded-xl border border-gray-200 bg-white p-4 text-center">
+              <p className="text-3xl font-bold text-green-600">{stats.inProgress}</p>
+              <p className="mt-1 text-sm text-gray-500">In Progress</p>
+            </div>
+            <div className="rounded-xl border border-gray-200 bg-white p-4 text-center">
+              <p className="text-3xl font-bold text-green-600">{stats.donated}</p>
+              <p className="mt-1 text-sm text-gray-500">Donated</p>
+            </div>
+            <div className="rounded-xl border border-gray-200 bg-white p-4 text-center">
+              <p className="text-3xl font-bold text-green-600">{stats.total}</p>
+              <p className="mt-1 text-sm text-gray-500">Total Posts</p>
+            </div>
+          </>
+        )}
       </div>
 
       <section className="mb-8 rounded-xl border border-gray-200 bg-white">

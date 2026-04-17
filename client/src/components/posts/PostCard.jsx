@@ -26,6 +26,8 @@ const PostCard = ({ post, type, onCTAClick }) => {
     status = 'open',
   } = post;
 
+  const imageList = Array.isArray(images) ? images : [];
+
   // Use donator for donations, receiver for needs
   const posterInfo = type === 'donation' ? donator : receiver;
   const posterName = posterInfo?.name || 'Anonymous';
@@ -79,9 +81,9 @@ const PostCard = ({ post, type, onCTAClick }) => {
     >
       {/* Image Section */}
       <div className="h-48 bg-gray-100 overflow-hidden rounded-t-xl flex items-center justify-center">
-        {images?.length > 0 ? (
+        {imageList.length > 0 ? (
           <img
-            src={images?.[0]}
+            src={imageList[0]}
             alt={title}
             className="w-full h-full object-cover"
           />
