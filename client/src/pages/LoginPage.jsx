@@ -3,6 +3,19 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 
+function HeartLogoIcon({ className }) {
+  return (
+    <svg
+      aria-hidden
+      className={className}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+    >
+      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+    </svg>
+  );
+}
+
 export default function LoginPage() {
   const navigate = useNavigate();
   const { login, isAuthenticated, user, loading } = useAuth();
@@ -12,49 +25,6 @@ export default function LoginPage() {
   const [loginAs, setLoginAs] = useState('donator');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const pageStyle = {
-    minHeight: '90vh',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    background: '#f3f3f3',
-    padding: '16px',
-  };
-
-  const wrapperStyle = {
-    width: '90%',
-    maxWidth: '600px',
-  };
-
-  const brandStyle = {
-    marginBottom: '20px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '10px',
-    color: '#3f3a34',
-  };
-
-  const cardStyle = {
-    background: '#f7f7f7',
-    border: '1px solid #e1e1e1',
-    borderRadius: '10px',
-    boxShadow: '0 8px 20px rgba(38, 35, 31, 0.08)',
-    paddingTop: '28px',
-    paddingBottom: '28px',
-    paddingLeft: '24px',
-    paddingRight: '24px',
-    margin: '10px',
-    boxSizing: 'border-box',
-  };
-
-  const controlStyle = {
-    borderRadius: '5px',
-    padding: '15px',
-    boxSizing: 'border-box',
-    width: '100%',
-    maxWidth: '100%',
-  };
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -81,16 +51,16 @@ export default function LoginPage() {
     try {
       const response = await login(email, password);
       const userData = response.data || response;
-      
+
       toast.success('Login successful!');
-      
+
       // Determine redirect based on role
       const dashboardMap = {
         donator: '/dashboard/donator',
         receiver: '/dashboard/receiver',
         admin: '/admin',
       };
-      
+
       navigate(dashboardMap[userData.role] || '/', { replace: true });
     } catch (err) {
       const errorMessage = err.response?.data?.message || err.message || 'Login failed. Please try again.';
@@ -103,36 +73,40 @@ export default function LoginPage() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="text-gray-600">Loading...</div>
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <p className="text-base text-muted-foreground">Loading...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f3f3f3] px-4" style={pageStyle}>
-      <div className="w-full max-w-md" style={wrapperStyle}>
-        <div className="mb-8 flex items-center justify-center gap-2 text-[#3f3a34]" style={brandStyle}>
-          <span className="text-[40px] leading-none">❤</span>
-          <h1 className="text-[60px] font-semibold tracking-tight">SocialServe</h1>
+    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
+      <div className="w-full max-w-md">
+        <div className="mb-8 flex items-center justify-center gap-2.5 text-foreground">
+          <HeartLogoIcon className="h-7 w-7 shrink-0 text-primary" />
+          <h1 className="text-2xl font-medium tracking-tight">SocialServe</h1>
         </div>
 
-        <div className="bg-[#f7f7f7] border border-[#e1e1e1] rounded-2xl shadow-sm px-3 py-4" style={cardStyle}>
-          <div className="mb-2">
-            <h2 className="text-[35px] font-semibold text-[#34312d] leading-tight">Welcome Back</h2>
-            <p className="text-[#6f6b67] mt-1 text-lg">Log in to your account to continue</p>
+        <div className="rounded-xl border border-border bg-card p-8 shadow-sm dark:shadow-none">
+          <div className="mb-8 space-y-1.5 text-center sm:text-left">
+            <h2 className="text-xl font-medium text-foreground">Welcome Back</h2>
+            <p className="text-sm text-muted-foreground">
+              Log in to your account to continue
+            </p>
           </div>
 
-          {/* Error Message */}
           {error && (
-            <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-3 py-2">
-              <p className="text-[18px] font-medium text-red-700">{error}</p>
+            <div
+              className="mb-6 rounded-md border border-destructive/25 bg-destructive/10 px-3 py-2.5 dark:border-destructive/40 dark:bg-destructive/15"
+              role="alert"
+            >
+              <p className="text-sm font-medium text-destructive">{error}</p>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-2">
-            <div>
-              <label htmlFor="email" className="block text-[20px] font-semibold text-[#4b4743] mb-2">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <label htmlFor="email" className="block text-sm font-medium text-foreground">
                 Email
               </label>
               <input
@@ -142,13 +116,12 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
-                className="w-full rounded-lg border border-[#ece8e4] bg-[#FBF4F0] px-4 py-2.5 text-[18px] placeholder:text-[18px] text-[#383532] placeholder:text-[#8f8b88] focus:outline-none focus:ring-2 focus:ring-[#8b6b42]/35 mb-6 focus:border-[#8b6b42]/60 transition mt-10px"
-                style={controlStyle}
+                className="w-full rounded-md border border-border bg-input px-3 py-2.5 text-base font-normal text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary/40"
               />
             </div>
-            <br />
-            <div>
-              <label htmlFor="password" className="block text-[20px] font-semibold text-[#4b4743] mb-2">
+
+            <div className="space-y-2">
+              <label htmlFor="password" className="block text-sm font-medium text-foreground">
                 Password
               </label>
               <input
@@ -158,50 +131,65 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full rounded-lg border border-[#ece8e4] bg-[#FBF4F0] px-4 py-2.5 text-[#383532] placeholder:text-[#8f8b88] focus:outline-none focus:ring-2 focus:ring-[#8b6b42]/35 focus:border-[#8b6b42]/60 transition"
-                style={controlStyle}
+                className="w-full rounded-md border border-border bg-input px-3 py-2.5 text-base font-normal text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary/40"
               />
             </div>
 
-            <div>
-              <p className="text-[18px] font-semibold text-[#4b4743] mb-2">I am a</p>
-              <div className="space-y-0 text-[20px] text-[#3f3a35]">
-                <label className="inline-flex items-center gap-2 cursor-pointer">
+            <fieldset className="space-y-3">
+              <legend className="mb-2 text-sm font-medium text-foreground">I am a</legend>
+              <div className="space-y-3 text-base text-foreground">
+                <label className="flex cursor-pointer items-center gap-3">
                   <input
                     type="radio"
                     name="loginAs"
                     value="donator"
                     checked={loginAs === 'donator'}
                     onChange={(e) => setLoginAs(e.target.value)}
-                    className="h-3.5 w-3.5 accent-[#8f6f45]"
+                    className="h-4 w-4 shrink-0 border-border text-primary focus:ring-2 focus:ring-primary/30 focus:ring-offset-2 focus:ring-offset-background dark:focus:ring-offset-background"
                   />
-                  Donator - I want to give
+                  <span className="font-normal">Donator - I want to give</span>
                 </label>
-                <label className="inline-flex items-center gap-2 cursor-pointer">
+                <label className="flex cursor-pointer items-center gap-3">
                   <input
                     type="radio"
                     name="loginAs"
                     value="receiver"
                     checked={loginAs === 'receiver'}
                     onChange={(e) => setLoginAs(e.target.value)}
-                    className="h-3.5 w-3.5 accent-[#8f6f45]"
+                    className="h-4 w-4 shrink-0 border-border text-primary focus:ring-2 focus:ring-primary/30 focus:ring-offset-2 focus:ring-offset-background dark:focus:ring-offset-background"
                   />
-                  Receiver - I need help
+                  <span className="font-normal">Receiver - I need help</span>
                 </label>
               </div>
-            </div>
+            </fieldset>
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full rounded-2xl bg-[#94734a] hover:bg-[#7e5f3a] disabled:bg-[#b69d7d] text-[18px] font-medium py-2.5 transition flex items-center justify-center gap-2"
-              style={controlStyle}
+              className="flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-base font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isLoading ? (
                 <>
-                  <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="h-5 w-5 animate-spin text-primary-foreground"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    aria-hidden
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
                   </svg>
                   Logging in...
                 </>
@@ -211,14 +199,15 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-6 text-center text-[#655f59]">
-            <p>
-              Don't have an account?{' '}
-              <Link to="/register" className="font-medium text-[#8f6f45] hover:text-[#7e5f3a] transition">
-                Register as Donator or Receiver
-              </Link>
-            </p>
-          </div>
+          <p className="mt-8 text-center text-sm text-muted-foreground">
+            Don&apos;t have an account?{' '}
+            <Link
+              to="/register"
+              className="font-medium text-accent transition-colors hover:text-accent/90 focus:outline-none focus-visible:underline"
+            >
+              Register as Donator or Receiver
+            </Link>
+          </p>
         </div>
       </div>
     </div>
