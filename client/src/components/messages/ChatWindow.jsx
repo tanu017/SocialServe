@@ -8,7 +8,8 @@ import { useSocket } from '../../context/SocketContext';
 
 const getOtherParticipant = (conversation, currentUserId) => {
   const participants = Array.isArray(conversation?.participants) ? conversation.participants : [];
-  return participants.find((participant) => participant?._id !== currentUserId) || participants[0];
+  const uid = currentUserId != null ? String(currentUserId) : '';
+  return participants.find((participant) => String(participant?._id) !== uid) || participants[0];
 };
 
 const getInitials = (name = '') =>
@@ -45,7 +46,7 @@ const getPostMeta = (conversation) => {
 export default function ChatWindow({ conversation, onBack, currentUser }) {
   const { user } = useAuth();
   const resolvedUser = currentUser || user;
-  const { socket, joinConversation, leaveConversation, sendMessage, sendTyping, markRead, setUnreadCount } =
+  const { socket, joinConversation, leaveConversation, sendTyping, markRead, setUnreadCount } =
     useSocket();
 
   const [messages, setMessages] = useState([]);
@@ -101,10 +102,16 @@ export default function ChatWindow({ conversation, onBack, currentUser }) {
         typeof msg?.conversation === 'string'
           ? msg.conversation
           : msg?.conversation?._id || msg?.conversation?.toString?.() || null;
-      if (messageConversationId && messageConversationId !== conversationId) return;
+      if (
+        messageConversationId &&
+        String(messageConversationId) !== String(conversationId)
+      ) {
+        return;
+      }
 
       setMessages((prev) => {
-        if (msg?._id && prev.some((existing) => existing?._id === msg._id)) {
+        const incomingId = msg?._id != null ? String(msg._id) : null;
+        if (incomingId && prev.some((existing) => String(existing?._id) === incomingId)) {
           return prev;
         }
         return [...prev, msg];
@@ -172,7 +179,7 @@ export default function ChatWindow({ conversation, onBack, currentUser }) {
     }
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
     const text = messageText.trim();
     if (!text || !conversationId) return;
 
@@ -183,7 +190,7 @@ export default function ChatWindow({ conversation, onBack, currentUser }) {
       sender: { _id: currentUserId, name: resolvedUser?.name, avatar: resolvedUser?.avatar },
       text,
       createdAt: new Date().toISOString(),
-      readBy: [currentUserId]
+      readBy: [currentUserId],
     };
 
     setMessages((prev) => [...prev, optimisticMessage]);
@@ -194,19 +201,24 @@ export default function ChatWindow({ conversation, onBack, currentUser }) {
     sendTyping(conversationId, false);
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
 
-    sendMessage(conversationId, text, (response) => {
-      if (response?.error) {
-        setMessages((prev) => prev.filter((msg) => msg._id !== optimisticId));
-        toast.error(response.error);
-        return;
-      }
-
-      if (response?.message) {
-        setMessages((prev) =>
-          prev.map((msg) => (msg._id === optimisticId ? response.message : msg))
-        );
-      }
-    });
+    try {
+      const { data: saved } = await api.post(`/conversations/${conversationId}/messages`, { text });
+      setMessages((prev) => {
+        const withoutTemp = prev.filter((m) => m._id !== optimisticId);
+        const savedId = saved?._id != null ? String(saved._id) : null;
+        const deduped = savedId
+          ? withoutTemp.filter((m) => String(m?._id) !== savedId)
+          : withoutTemp;
+        return [...deduped, saved];
+      });
+    } catch (error) {
+      setMessages((prev) => prev.filter((msg) => msg._id !== optimisticId));
+      const msg =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        'Failed to send message';
+      toast.error(typeof msg === 'string' ? msg : 'Failed to send message');
+    }
   };
 
   const handleKeyDown = (event) => {
@@ -294,7 +306,8 @@ export default function ChatWindow({ conversation, onBack, currentUser }) {
             const previousDate = getMessageDate(messages[index - 1]);
             const showSeparator =
               !!date && (!previousDate || !isSameDay(date, previousDate));
-            const isOwn = getMessageSenderId(message) === currentUserId;
+            const isOwn =
+              String(getMessageSenderId(message) ?? '') === String(currentUserId ?? '');
 
             return (
               <div key={message._id || `${message.text}-${index}`}>

@@ -26,14 +26,14 @@ export default function initSocket(io) {
     // Join a personal room named after the user's _id (for DM notifications)
     socket.join(socket.user._id.toString());
 
-    // Join a conversation room
+    // Join a conversation room (must match io.to(String(id)) when broadcasting)
     socket.on('join:conversation', (conversationId) => {
-      socket.join(conversationId);
+      if (conversationId != null) socket.join(String(conversationId));
     });
 
     // Leave a conversation room
     socket.on('leave:conversation', (conversationId) => {
-      socket.leave(conversationId);
+      if (conversationId != null) socket.leave(String(conversationId));
     });
 
     // Send a message
@@ -41,10 +41,11 @@ export default function initSocket(io) {
     socket.on('message:send', async (payload, callback) => {
       try {
         const { conversationId, text } = payload;
+        const roomId = conversationId != null ? String(conversationId) : '';
         if (!text?.trim()) return callback?.({ error: 'Empty message' });
 
         // Verify sender is a participant
-        const conversation = await Conversation.findById(conversationId);
+        const conversation = await Conversation.findById(roomId);
         if (!conversation) return callback?.({ error: 'Conversation not found' });
         const isParticipant = conversation.participants.some(
           p => p.toString() === socket.user._id.toString()
@@ -53,14 +54,14 @@ export default function initSocket(io) {
 
         // Save message to DB
         const message = await Message.create({
-          conversation: conversationId,
+          conversation: roomId,
           sender: socket.user._id,
           text: text.trim(),
           readBy: [socket.user._id]
         });
 
         // Update conversation lastMessage + lastMessageAt
-        await Conversation.findByIdAndUpdate(conversationId, {
+        await Conversation.findByIdAndUpdate(roomId, {
           lastMessage: text.trim(),
           lastMessageAt: new Date()
         });
@@ -69,7 +70,7 @@ export default function initSocket(io) {
         await message.populate('sender', 'name avatar');
 
         // Emit to all clients in the conversation room (including sender)
-        io.to(conversationId).emit('message:receive', message);
+        io.to(roomId).emit('message:receive', message);
 
         // Notify the OTHER participant's personal room (for unread badge)
         const otherParticipants = conversation.participants.filter(
@@ -77,7 +78,7 @@ export default function initSocket(io) {
         );
         otherParticipants.forEach(participantId => {
           io.to(participantId.toString()).emit('notification:newMessage', {
-            conversationId,
+            conversationId: roomId,
             senderName: socket.user.name,
             preview: text.trim().substring(0, 60)
           });
@@ -94,13 +95,14 @@ export default function initSocket(io) {
     socket.on('message:read', async (payload) => {
       try {
         const { conversationId } = payload;
+        const roomId = conversationId != null ? String(conversationId) : '';
         await Message.updateMany(
-          { conversation: conversationId, readBy: { $ne: socket.user._id } },
+          { conversation: roomId, readBy: { $ne: socket.user._id } },
           { $addToSet: { readBy: socket.user._id } }
         );
         // Notify others in the room that messages were read
-        socket.to(conversationId).emit('message:readAck', {
-          conversationId,
+        socket.to(roomId).emit('message:readAck', {
+          conversationId: roomId,
           readBy: socket.user._id
         });
       } catch (err) {
@@ -111,7 +113,10 @@ export default function initSocket(io) {
     // Typing indicator
     // payload: { conversationId, isTyping }
     socket.on('user:typing', (payload) => {
-      socket.to(payload.conversationId).emit('user:typing', {
+      const roomId =
+        payload?.conversationId != null ? String(payload.conversationId) : '';
+      if (!roomId) return;
+      socket.to(roomId).emit('user:typing', {
         userId: socket.user._id,
         name: socket.user.name,
         isTyping: payload.isTyping

@@ -6,7 +6,12 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/api': 'http://localhost:5050'
-    }
-  }
+      '/api': 'http://localhost:5050',
+      // Socket.IO client connects to the dev origin; forward WS + HTTP long-polling to the API server
+      '/socket.io': {
+        target: 'http://localhost:5050',
+        ws: true,
+      },
+    },
+  },
 })

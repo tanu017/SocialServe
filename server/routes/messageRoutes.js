@@ -5,6 +5,11 @@ import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
 
+function isParticipant(conversation, userId) {
+  const uid = userId?.toString?.() ?? String(userId);
+  return conversation.participants.some((p) => p.toString() === uid);
+}
+
 // Mounted at /api/v1/conversations — GET / lists conversations for the current user
 router.get('/', protect, async (req, res) => {
   try {
@@ -29,8 +34,7 @@ router.get('/:id/messages', protect, async (req, res) => {
       return res.status(404).json({ message: 'Conversation not found' });
     }
 
-    // Verify user is a participant
-    if (!conversation.participants.includes(req.user._id)) {
+    if (!isParticipant(conversation, req.user._id)) {
       return res.status(403).json({ message: 'Not authorized to view this conversation' });
     }
 
@@ -44,36 +48,53 @@ router.get('/:id/messages', protect, async (req, res) => {
   }
 });
 
-// POST /:id/messages — send a message
+// POST /:id/messages — send a message (persist + broadcast like socket handler)
 router.post('/:id/messages', protect, async (req, res) => {
   try {
+    const text = typeof req.body?.text === 'string' ? req.body.text.trim() : '';
+    if (!text) {
+      return res.status(400).json({ message: 'Message text is required' });
+    }
+
     const conversation = await Conversation.findById(req.params.id);
 
     if (!conversation) {
       return res.status(404).json({ message: 'Conversation not found' });
     }
 
-    // Verify user is a participant
-    if (!conversation.participants.includes(req.user._id)) {
+    if (!isParticipant(conversation, req.user._id)) {
       return res.status(403).json({ message: 'Not authorized to message in this conversation' });
     }
 
-    // Create message
     const message = new Message({
       conversation: req.params.id,
       sender: req.user._id,
-      text: req.body.text,
+      text,
+      readBy: [req.user._id],
     });
 
     await message.save();
 
-    // Update conversation last message and timestamp
-    conversation.lastMessage = req.body.text;
+    conversation.lastMessage = text;
     conversation.lastMessageAt = new Date();
     await conversation.save();
 
-    // Populate sender info
     await message.populate('sender', 'name avatar');
+
+    const io = req.app.get('io');
+    const roomId = String(req.params.id);
+    if (io) {
+      io.to(roomId).emit('message:receive', message);
+      conversation.participants
+        .filter((p) => p.toString() !== req.user._id.toString())
+        .forEach((participantId) => {
+          io.to(participantId.toString()).emit('notification:newMessage', {
+            conversationId: roomId,
+            senderName: req.user.name,
+            preview: text.substring(0, 60),
+          });
+        });
+    }
 
     res.status(201).json(message);
   } catch (error) {
@@ -90,12 +111,10 @@ router.put('/:id/read', protect, async (req, res) => {
       return res.status(404).json({ message: 'Conversation not found' });
     }
 
-    // Verify user is a participant
-    if (!conversation.participants.includes(req.user._id)) {
+    if (!isParticipant(conversation, req.user._id)) {
       return res.status(403).json({ message: 'Not authorized to update this conversation' });
     }
 
-    // Add user to readBy of all messages in this conversation that don't have them
     await Message.updateMany(
       {
         conversation: req.params.id,

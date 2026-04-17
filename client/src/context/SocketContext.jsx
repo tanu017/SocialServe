@@ -51,14 +51,19 @@ export const SocketProvider = ({ children }) => {
     socket,
     unreadCount,
     setUnreadCount,
-    joinConversation: (id) => socketRef.current?.emit('join:conversation', id),
-    leaveConversation: (id) => socketRef.current?.emit('leave:conversation', id),
+    joinConversation: (id) =>
+      socketRef.current?.emit('join:conversation', id != null ? String(id) : id),
+    leaveConversation: (id) =>
+      socketRef.current?.emit('leave:conversation', id != null ? String(id) : id),
     sendMessage: (conversationId, text, callback) =>
-      socketRef.current?.emit('message:send', { conversationId, text }, callback),
+      socketRef.current?.emit('message:send', { conversationId: String(conversationId), text }, callback),
     sendTyping: (conversationId, isTyping) =>
-      socketRef.current?.emit('user:typing', { conversationId, isTyping }),
+      socketRef.current?.emit('user:typing', {
+        conversationId: conversationId != null ? String(conversationId) : conversationId,
+        isTyping,
+      }),
     markRead: (conversationId) =>
-      socketRef.current?.emit('message:read', { conversationId })
+      socketRef.current?.emit('message:read', { conversationId: String(conversationId) })
   };
 
   return <SocketContext.Provider value={value}>{children}</SocketContext.Provider>;
