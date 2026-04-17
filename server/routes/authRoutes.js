@@ -2,6 +2,7 @@ import express from 'express';
 import User from '../models/User.js';
 import generateToken from '../utils/generateToken.js';
 import { protect } from '../middleware/auth.js';
+import { getPlatformSettings } from '../utils/platformSettings.js';
 
 const router = express.Router();
 
@@ -24,6 +25,14 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Email already registered.',
+      });
+    }
+
+    const platformSettings = await getPlatformSettings();
+    if (!platformSettings.allowRegistration) {
+      return res.status(403).json({
+        success: false,
+        message: 'New registrations are temporarily disabled.',
       });
     }
 

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const api = axios.create({
   baseURL: '/api/v1'
@@ -24,6 +25,12 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
+    if (error.response?.status === 503 && error.response?.data?.code === 'MAINTENANCE') {
+      toast.error(error.response?.data?.message || 'Unavailable during maintenance.', {
+        id: 'maintenance-503',
+      });
+      return Promise.reject(error);
+    }
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('SocialServe_token');
       localStorage.removeItem('SocialServe_user');

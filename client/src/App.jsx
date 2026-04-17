@@ -27,11 +27,9 @@ import AdminUserListPage from './pages/admin/AdminUserListPage';
 import AdminUserDetailPage from './pages/admin/AdminUserDetailPage';
 import AdminDonationsPage from './pages/admin/AdminDonationsPage';
 import AdminNeedsPage from './pages/admin/AdminNeedsPage';
+import AdminSettingsPage from './pages/admin/AdminSettingsPage';
+import PlatformBanner from './components/common/PlatformBanner';
 import NotFoundPage from './pages/NotFoundPage';
-
-function AdminSettingsPlaceholder() {
-  return <div className="rounded-xl border border-gray-200 bg-white p-6">Settings coming soon</div>;
-}
 
 function App() {
   return (
@@ -57,6 +55,7 @@ function App() {
       />
       <Navbar />
       <div className="pt-16">
+        <PlatformBanner />
         <ErrorBoundary>
           <Routes>
           {/* Public Routes */}
@@ -238,7 +237,7 @@ function App() {
             path="/admin/settings"
             element={
               <ProtectedRoute allowedRoles={['admin']}>
-                <AdminSettingsPlaceholder />
+                <AdminSettingsPage />
               </ProtectedRoute>
             }
           />

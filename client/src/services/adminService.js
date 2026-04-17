@@ -17,3 +17,7 @@ export const deleteAdminDonation = (id) => api.delete(`/admin/donations/${id}`);
 export const getAdminNeeds = (params) => api.get('/admin/needs', { params });
 
 export const deleteAdminNeed = (id) => api.delete(`/admin/needs/${id}`);
+
+export const getAdminPlatformSettings = () => api.get('/admin/platform-settings');
+
+export const updateAdminPlatformSettings = (data) => api.put('/admin/platform-settings', data);

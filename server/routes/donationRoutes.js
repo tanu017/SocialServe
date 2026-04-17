@@ -1,6 +1,7 @@
 import express from 'express';
 import DonationPost from '../models/DonationPost.js';
 import { protect, authorize } from '../middleware/auth.js';
+import { getPlatformSettings } from '../utils/platformSettings.js';
 import { multerUpload, uploadToCloudinary } from '../middleware/upload.js';
 import { findOrCreateConversationForPair } from '../utils/conversationHelpers.js';
 
@@ -58,6 +59,14 @@ router.get('/', async (req, res) => {
 // 2. POST / — Create a new donation post with image uploads
 router.post('/', protect, authorize('donator'), multerUpload, async (req, res) => {
   try {
+    const platformSettings = await getPlatformSettings();
+    if (!platformSettings.allowNewDonationPosts) {
+      return res.status(403).json({
+        success: false,
+        message: 'Creating new donation posts is temporarily disabled.',
+      });
+    }
+
     const {
       title,
       description,

@@ -3,6 +3,7 @@ import User from '../models/User.js';
 import DonationPost from '../models/DonationPost.js';
 import NeedPost from '../models/NeedPost.js';
 import { protect, authorize } from '../middleware/auth.js';
+import { getPlatformSettings, updatePlatformSettings } from '../utils/platformSettings.js';
 
 const router = express.Router();
 
@@ -366,6 +367,42 @@ router.delete('/needs/:id', async (req, res) => {
     return res.status(500).json({
       success: false,
       message: error.message || 'Failed to delete need post.',
+      data: null,
+    });
+  }
+});
+
+// GET /admin/platform-settings
+router.get('/platform-settings', async (req, res) => {
+  try {
+    const settings = await getPlatformSettings();
+    return res.status(200).json({
+      success: true,
+      message: 'Platform settings retrieved successfully.',
+      data: { settings },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to retrieve platform settings.',
+      data: null,
+    });
+  }
+});
+
+// PUT /admin/platform-settings
+router.put('/platform-settings', async (req, res) => {
+  try {
+    const settings = await updatePlatformSettings(req.body || {});
+    return res.status(200).json({
+      success: true,
+      message: 'Platform settings updated successfully.',
+      data: { settings },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Failed to update platform settings.',
       data: null,
     });
   }

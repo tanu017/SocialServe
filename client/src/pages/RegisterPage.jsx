@@ -2,11 +2,13 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
+import { getPublicPlatform } from '../services/platformService';
 
 export default function RegisterPage() {
   const navigate = useNavigate();
   const { register, isAuthenticated, user, loading } = useAuth();
 
+  const [registrationOpen, setRegistrationOpen] = useState(true);
   const [role, setRole] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -18,6 +20,24 @@ export default function RegisterPage() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await getPublicPlatform();
+        const data = res?.data?.data ?? res?.data;
+        if (!cancelled && data && typeof data.allowRegistration === 'boolean') {
+          setRegistrationOpen(data.allowRegistration);
+        }
+      } catch {
+        /* ignore — banner / server message still applies */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -172,8 +192,21 @@ export default function RegisterPage() {
           </div>
         )}
 
+        {!registrationOpen && (
+          <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-center">
+            <p className="text-sm font-medium text-amber-900">New registrations are temporarily disabled.</p>
+            <p className="mt-1 text-xs text-amber-800">
+              Please try again later or{' '}
+              <Link to="/login" className="font-medium underline">
+                sign in
+              </Link>{' '}
+              if you already have an account.
+            </p>
+          </div>
+        )}
+
         {/* Form - Only show if role is selected */}
-        {role && (
+        {role && registrationOpen && (
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Full Name */}
             <div>

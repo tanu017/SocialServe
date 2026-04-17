@@ -10,6 +10,8 @@ import needRoutes from './routes/needRoutes.js';
 import messageRoutes from './routes/messageRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import platformRoutes from './routes/platformRoutes.js';
+import maintenanceModeMiddleware from './middleware/maintenanceMode.js';
 import initSocket from './socket/index.js';
 
 // Load env vars
@@ -33,6 +35,8 @@ app.use(cors({
   origin: process.env.CLIENT_URL || '*'
 }));
 
+app.use(maintenanceModeMiddleware);
+
 // Basic Route for testing
 app.get('/', (req, res) => {
   res.send('Social Serve API is running...');
@@ -40,6 +44,7 @@ app.get('/', (req, res) => {
 
 // API Routes
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/platform', platformRoutes);
 app.use('/api/v1/donations', donationRoutes);
 app.use('/api/v1/needs', needRoutes);
 app.use('/api/v1/admin', adminRoutes);

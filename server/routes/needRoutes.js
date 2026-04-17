@@ -1,6 +1,7 @@
 import express from 'express';
 import NeedPost from '../models/NeedPost.js';
 import { protect, authorize } from '../middleware/auth.js';
+import { getPlatformSettings } from '../utils/platformSettings.js';
 import { multerUpload, uploadToCloudinary } from '../middleware/upload.js';
 import { findOrCreateConversationForPair } from '../utils/conversationHelpers.js';
 
@@ -58,6 +59,14 @@ router.get('/', async (req, res) => {
 // 2. POST / — Create a new need post with image uploads
 router.post('/', protect, authorize('receiver'), multerUpload, async (req, res) => {
   try {
+    const platformSettings = await getPlatformSettings();
+    if (!platformSettings.allowNewNeedPosts) {
+      return res.status(403).json({
+        success: false,
+        message: 'Creating new need posts is temporarily disabled.',
+      });
+    }
+
     const {
       title,
       description,
