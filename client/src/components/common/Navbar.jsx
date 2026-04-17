@@ -10,8 +10,6 @@ export default function Navbar() {
   const { isAuthenticated, user, logout, loading } = useAuth();
   const { unreadCount } = useSocket();
 
-  const isActive = (path) => location.pathname === path;
-
   const handleLogout = async () => {
     await logout();
     setMobileMenuOpen(false);
@@ -59,6 +57,45 @@ export default function Navbar() {
   };
   const messagesLink = getMessagesLink();
 
+  // Guests see both browse links; logged-in receivers browse donations + post needs; donators browse needs + post donations
+  const browseNavItems =
+    loading || !isAuthenticated || !user?.role
+      ? [
+          { to: '/browse/donations', label: 'Browse Donations' },
+          { to: '/browse/needs', label: 'Browse Needs' },
+        ]
+      : user.role === 'receiver'
+        ? [{ to: '/browse/donations', label: 'Browse Donations' }]
+        : user.role === 'donator'
+          ? [{ to: '/browse/needs', label: 'Browse Needs' }]
+          : user.role === 'admin'
+            ? [
+                { to: '/browse/donations', label: 'Browse Donations' },
+                { to: '/browse/needs', label: 'Browse Needs' },
+              ]
+            : [
+                { to: '/browse/donations', label: 'Browse Donations' },
+                { to: '/browse/needs', label: 'Browse Needs' },
+              ];
+
+  const postNavItem =
+    isAuthenticated && user?.role === 'receiver'
+      ? { to: '/dashboard/receiver/needs/new', label: 'Post a Need' }
+      : isAuthenticated && user?.role === 'donator'
+        ? { to: '/dashboard/donator/posts/new', label: 'Post a Donation' }
+        : null;
+
+  const isBrowseActive = (path) =>
+    location.pathname === path || location.pathname.startsWith(`${path}/`);
+
+  const isPostNeedActive = () =>
+    location.pathname === '/dashboard/receiver/needs/new' ||
+    location.pathname.startsWith('/dashboard/receiver/needs/edit/');
+
+  const isPostDonationActive = () =>
+    location.pathname === '/dashboard/donator/posts/new' ||
+    location.pathname.startsWith('/dashboard/donator/posts/edit/');
+
   return (
     <nav className="fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-50 h-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between">
@@ -68,27 +105,31 @@ export default function Navbar() {
         </Link>
 
         {/* Center Navigation - Hidden on mobile, visible on md+ */}
-        <div className="hidden md:flex items-center space-x-8">
-          <Link
-            to="/browse/donations"
-            className={`${
-              isActive('/browse/donations')
-                ? 'text-green-600 font-medium'
-                : 'text-gray-600 hover:text-green-600'
-            } transition-colors`}
-          >
-            Browse Donations
-          </Link>
-          <Link
-            to="/browse/needs"
-            className={`${
-              isActive('/browse/needs')
-                ? 'text-green-600 font-medium'
-                : 'text-gray-600 hover:text-green-600'
-            } transition-colors`}
-          >
-            Browse Needs
-          </Link>
+        <div className="hidden md:flex items-center space-x-6">
+          {browseNavItems.map((item) => (
+            <Link
+              key={item.to}
+              to={item.to}
+              className={`${
+                isBrowseActive(item.to) ? 'text-green-600 font-medium' : 'text-gray-600 hover:text-green-600'
+              } transition-colors`}
+            >
+              {item.label}
+            </Link>
+          ))}
+          {postNavItem ? (
+            <Link
+              to={postNavItem.to}
+              className={`${
+                (postNavItem.to.includes('/receiver/needs') && isPostNeedActive()) ||
+                (postNavItem.to.includes('/donator/posts') && isPostDonationActive())
+                  ? 'text-green-600 font-medium'
+                  : 'text-gray-600 hover:text-green-600'
+              } transition-colors`}
+            >
+              {postNavItem.label}
+            </Link>
+          ) : null}
         </div>
 
         {/* Right Side */}
@@ -184,28 +225,30 @@ export default function Navbar() {
         <div className="md:hidden bg-white border-b border-gray-200">
           <div className="px-4 py-4 space-y-3">
             {/* Mobile Nav Links */}
-            <Link
-              to="/browse/donations"
-              className={`block py-2 ${
-                isActive('/browse/donations')
-                  ? 'text-green-600 font-medium'
-                  : 'text-gray-600'
-              }`}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Browse Donations
-            </Link>
-            <Link
-              to="/browse/needs"
-              className={`block py-2 ${
-                isActive('/browse/needs')
-                  ? 'text-green-600 font-medium'
-                  : 'text-gray-600'
-              }`}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Browse Needs
-            </Link>
+            {browseNavItems.map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                className={`block py-2 ${isBrowseActive(item.to) ? 'text-green-600 font-medium' : 'text-gray-600'}`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {item.label}
+              </Link>
+            ))}
+            {postNavItem ? (
+              <Link
+                to={postNavItem.to}
+                className={`block py-2 ${
+                  (postNavItem.to.includes('/receiver/needs') && isPostNeedActive()) ||
+                  (postNavItem.to.includes('/donator/posts') && isPostDonationActive())
+                    ? 'text-green-600 font-medium'
+                    : 'text-gray-600'
+                }`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {postNavItem.label}
+              </Link>
+            ) : null}
 
             <div className="border-t border-gray-200 pt-3">
               {!isAuthenticated ? (
