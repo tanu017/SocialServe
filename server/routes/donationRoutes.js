@@ -2,6 +2,7 @@ import express from 'express';
 import DonationPost from '../models/DonationPost.js';
 import { protect, authorize } from '../middleware/auth.js';
 import { multerUpload, uploadToCloudinary } from '../middleware/upload.js';
+import { findOrCreateConversationForPair } from '../utils/conversationHelpers.js';
 
 const router = express.Router();
 
@@ -301,39 +302,18 @@ router.post('/:id/need', protect, authorize('receiver'), async (req, res) => {
       });
     }
 
-    // Import Conversation model
-    const { default: Conversation } = await import('../models/Conversation.js');
-
-    // Check if conversation already exists
-    const existingConversation = await Conversation.findOne({
-      participants: { $all: [req.user._id, post.donator] },
-      relatedPost: post._id,
-    });
-
-    if (existingConversation) {
-      return res.json({
-        success: true,
-        message: 'Conversation already exists',
-        data: {
-          conversationId: existingConversation._id,
-        },
-      });
-    }
-
-    // Create new conversation
-    const newConversation = new Conversation({
-      participants: [req.user._id, post.donator],
-      relatedPost: post._id,
+    const { conversation, created } = await findOrCreateConversationForPair({
+      userIdA: req.user._id,
+      userIdB: post.donator,
+      relatedPostId: post._id,
       postType: 'donation',
     });
 
-    await newConversation.save();
-
-    res.status(201).json({
+    return res.status(created ? 201 : 200).json({
       success: true,
-      message: 'Conversation created successfully',
+      message: created ? 'Conversation created successfully' : 'Conversation already exists',
       data: {
-        conversationId: newConversation._id,
+        conversationId: conversation._id,
       },
     });
   } catch (error) {
