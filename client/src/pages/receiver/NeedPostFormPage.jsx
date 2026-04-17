@@ -100,7 +100,7 @@ export default function NeedPostFormPage() {
           title: post?.title || '',
           description: post?.description || '',
           category: post?.category || '',
-          quantity: post?.quantity ? String(post.quantity) : '',
+          quantity: post?.quantityNeeded != null ? String(post.quantityNeeded) : post?.quantity ? String(post.quantity) : '',
           unit: post?.unit || '',
           urgency: post?.urgency || '',
           location: {
@@ -203,7 +203,7 @@ export default function NeedPostFormPage() {
     payload.append('title', formData.title.trim());
     payload.append('description', formData.description.trim());
     payload.append('category', formData.category);
-    payload.append('quantity', String(formData.quantity));
+    payload.append('quantityNeeded', String(formData.quantity));
     payload.append('unit', formData.unit.trim());
     payload.append('urgency', formData.urgency);
     payload.append('location[city]', formData.location.city.trim());
