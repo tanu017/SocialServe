@@ -5,7 +5,7 @@ import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// GET /conversations - Find all conversations for the current user
+// Mounted at /api/v1/conversations — GET / lists conversations for the current user
 router.get('/', protect, async (req, res) => {
   try {
     const conversations = await Conversation.find({
@@ -20,7 +20,7 @@ router.get('/', protect, async (req, res) => {
   }
 });
 
-// GET /conversations/:id/messages - Get all messages in a conversation
+// GET /:id/messages — messages in a conversation
 router.get('/:id/messages', protect, async (req, res) => {
   try {
     const conversation = await Conversation.findById(req.params.id);
@@ -44,7 +44,7 @@ router.get('/:id/messages', protect, async (req, res) => {
   }
 });
 
-// POST /conversations/:id/messages - Create a new message
+// POST /:id/messages — send a message
 router.post('/:id/messages', protect, async (req, res) => {
   try {
     const conversation = await Conversation.findById(req.params.id);
@@ -81,7 +81,7 @@ router.post('/:id/messages', protect, async (req, res) => {
   }
 });
 
-// PUT /conversations/:id/read - Mark all messages as read
+// PUT /:id/read — mark as read
 router.put('/:id/read', protect, async (req, res) => {
   try {
     const conversation = await Conversation.findById(req.params.id);

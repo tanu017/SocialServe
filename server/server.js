@@ -44,7 +44,8 @@ app.use('/api/v1/donations', donationRoutes);
 app.use('/api/v1/needs', needRoutes);
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/users', userRoutes);
-app.use('/api/v1', messageRoutes);
+// Message routes use paths like `/`, `/:id/messages` — mount here so they resolve to `/api/v1/conversations`, etc.
+app.use('/api/v1/conversations', messageRoutes);
 
 // 404 handler
 app.use((req, res) => {
