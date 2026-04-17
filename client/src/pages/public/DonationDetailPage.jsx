@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { getDonationById, needDonation } from '../../services/postService';
 import { useAuth } from '../../context/AuthContext';
 import { formatDistanceToNow } from 'date-fns';
+import { getUserRefId } from '../../utils/userRef';
 
 const DonationDetailPage = () => {
   const { id } = useParams();
@@ -92,7 +93,6 @@ const DonationDetailPage = () => {
     quantity = 0,
     unit = 'pcs',
     images = [],
-    postedBy = {},
     location = {},
     pickupAvailable = false,
     deliveryAvailable = false,
@@ -101,9 +101,14 @@ const DonationDetailPage = () => {
     createdAt = new Date(),
   } = post;
 
-  const posterName = postedBy?.name || 'Anonymous';
-  const isVerified = postedBy?.isVerified || false;
-  const posterBio = postedBy?.bio || 'No bio provided';
+  const donatorRef = post.donator;
+  const profileUserId = getUserRefId(donatorRef);
+  const donor =
+    donatorRef && typeof donatorRef === 'object' && !Array.isArray(donatorRef) ? donatorRef : {};
+
+  const posterName = donor?.name || 'Anonymous';
+  const isVerified = donor?.isVerified || false;
+  const posterBio = donor?.bio || 'No bio provided';
 
   // Color maps
   const conditionColorMap = {
@@ -195,12 +200,17 @@ const DonationDetailPage = () => {
 
                 <p className="text-gray-600 text-sm mb-4 line-clamp-2">{posterBio}</p>
 
-                <button
-                  onClick={() => navigate(`/profile/${postedBy._id}`)}
-                  className="text-green-600 hover:text-green-700 font-medium text-sm underline"
-                >
-                  View Profile
-                </button>
+                {profileUserId ? (
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/profile/${profileUserId}`)}
+                    className="text-green-600 hover:text-green-700 font-medium text-sm underline"
+                  >
+                    View Profile
+                  </button>
+                ) : (
+                  <p className="text-sm text-gray-500">Profile unavailable</p>
+                )}
               </div>
             </div>
           </div>

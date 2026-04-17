@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { getNeedById, helpNeed } from '../../services/postService';
 import { useAuth } from '../../context/AuthContext';
 import { formatDistanceToNow } from 'date-fns';
+import { getUserRefId } from '../../utils/userRef';
 
 const NeedDetailPage = () => {
   const { id } = useParams();
@@ -98,6 +99,8 @@ const NeedDetailPage = () => {
     tags = [],
     createdAt = new Date(),
   } = post;
+
+  const profileUserId = getUserRefId(post.receiver) || getUserRefId(receiver);
 
   const receiverName = receiver?.name || 'Anonymous';
   const isVerified = receiver?.isVerified || false;
@@ -194,12 +197,17 @@ const NeedDetailPage = () => {
 
                 <p className="text-gray-600 text-sm mb-4 line-clamp-2">{receiverBio}</p>
 
-                <button
-                  onClick={() => navigate(`/profile/${receiver._id}`)}
-                  className="text-blue-600 hover:text-blue-700 font-medium text-sm underline"
-                >
-                  View Profile
-                </button>
+                {profileUserId ? (
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/profile/${profileUserId}`)}
+                    className="text-blue-600 hover:text-blue-700 font-medium text-sm underline"
+                  >
+                    View Profile
+                  </button>
+                ) : (
+                  <p className="text-sm text-gray-500">Profile unavailable</p>
+                )}
               </div>
             </div>
           </div>

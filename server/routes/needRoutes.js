@@ -148,7 +148,7 @@ router.get('/:id', async (req, res) => {
   try {
     const post = await NeedPost.findById(req.params.id).populate(
       'receiver',
-      'name avatar role isVerified organizationName'
+      'name avatar role isVerified organizationName bio'
     );
 
     if (!post) {

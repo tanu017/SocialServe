@@ -45,7 +45,12 @@ export default function PublicProfilePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!id) return;
+    if (!id || id === 'undefined') {
+      setLoading(false);
+      setProfile(null);
+      setPosts([]);
+      return;
+    }
 
     const loadProfile = async () => {
       try {
