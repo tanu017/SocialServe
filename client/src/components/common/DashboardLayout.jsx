@@ -118,7 +118,6 @@ export default function DashboardLayout({
             </span>
           ) : null}
           <Link to="/" className="block text-xl font-bold text-[#1D9E75]">
-            GiveHub
           </Link>
           <div className="mt-4 flex items-center gap-3">
             {user?.avatar ? (
