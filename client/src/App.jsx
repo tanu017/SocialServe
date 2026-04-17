@@ -3,6 +3,7 @@ import { Toaster } from 'react-hot-toast';
 import Navbar from './components/common/Navbar';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import ProtectedRoute from './components/routing/ProtectedRoute';
+import BrowseRoleGuard from './components/routing/BrowseRoleGuard';
 
 // Pages
 import HomePage from './pages/public/HomePage';
@@ -60,10 +61,38 @@ function App() {
           <Routes>
           {/* Public Routes */}
           <Route path="/" element={<HomePage />} />
-          <Route path="/browse/donations" element={<BrowseDonationsPage />} />
-          <Route path="/browse/needs" element={<BrowseNeedsPage />} />
-          <Route path="/posts/donation/:id" element={<DonationDetailPage />} />
-          <Route path="/posts/need/:id" element={<NeedDetailPage />} />
+          <Route
+            path="/browse/donations"
+            element={
+              <BrowseRoleGuard forbiddenRoles={['donator']} redirectTo="/browse/needs">
+                <BrowseDonationsPage />
+              </BrowseRoleGuard>
+            }
+          />
+          <Route
+            path="/browse/needs"
+            element={
+              <BrowseRoleGuard forbiddenRoles={['receiver']} redirectTo="/browse/donations">
+                <BrowseNeedsPage />
+              </BrowseRoleGuard>
+            }
+          />
+          <Route
+            path="/posts/donation/:id"
+            element={
+              <BrowseRoleGuard forbiddenRoles={['donator']} redirectTo="/browse/needs">
+                <DonationDetailPage />
+              </BrowseRoleGuard>
+            }
+          />
+          <Route
+            path="/posts/need/:id"
+            element={
+              <BrowseRoleGuard forbiddenRoles={['receiver']} redirectTo="/browse/donations">
+                <NeedDetailPage />
+              </BrowseRoleGuard>
+            }
+          />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/profile/:id" element={<PublicProfilePage />} />
