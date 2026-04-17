@@ -1,4 +1,4 @@
-import { Link, NavLink, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useSocket } from '../../context/SocketContext';
 
@@ -69,6 +69,11 @@ const renderIcon = (icon) => {
   return icon || Icons.grid;
 };
 
+const normalizePath = (path = '') => {
+  if (!path) return '/';
+  return path !== '/' ? path.replace(/\/+$/, '') : path;
+};
+
 export default function DashboardLayout({
   sidebarLinks = [],
   children,
@@ -79,6 +84,27 @@ export default function DashboardLayout({
   const location = useLocation();
   const { user, logout } = useAuth();
   const { unreadCount } = useSocket();
+  const currentPath = normalizePath(location.pathname);
+
+  const isLinkMatch = (link) => {
+    const linkPath = normalizePath(link.to);
+    const requiresExact =
+      Boolean(link.end) ||
+      linkPath === '/dashboard/donator' ||
+      linkPath === '/dashboard/receiver' ||
+      linkPath === '/admin';
+
+    if (requiresExact) {
+      return currentPath === linkPath;
+    }
+
+    return currentPath === linkPath || currentPath.startsWith(`${linkPath}/`);
+  };
+
+  const activeLinkPath = sidebarLinks
+    .filter((link) => isLinkMatch(link))
+    .map((link) => normalizePath(link.to))
+    .sort((a, b) => b.length - a.length)[0];
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -112,24 +138,16 @@ export default function DashboardLayout({
         </div>
 
         <nav className="flex-1 space-y-1 p-3">
-          {sidebarLinks.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              end={Boolean(
-                link.end ||
-                  link.to === '/dashboard/donator' ||
-                  link.to === '/dashboard/receiver' ||
-                  link.to === '/admin'
-              )}
-              className={({ isActive }) =>
-                `flex items-center justify-between rounded-lg px-3 py-2 text-sm transition ${
-                  isActive
-                    ? 'bg-green-50 font-medium text-green-700'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`
-              }
-            >
+          {sidebarLinks.map((link) => {
+            const isActive = normalizePath(link.to) === activeLinkPath;
+            return (
+              <Link
+                key={link.to}
+                to={link.to}
+                className={`flex items-center justify-between rounded-lg px-3 py-2 text-sm transition ${
+                  isActive ? 'bg-green-50 font-medium text-green-700' : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
               <span className="flex items-center gap-2">
                 {renderIcon(link.icon)}
                 {link.label}
@@ -139,8 +157,9 @@ export default function DashboardLayout({
                   {link.badge > 0 ? link.badge : unreadCount}
                 </span>
               ) : null}
-            </NavLink>
-          ))}
+              </Link>
+            );
+          })}
         </nav>
 
         <div className="border-t border-gray-200 p-3">
