@@ -34,12 +34,20 @@ const getMessageDate = (message) => {
 };
 
 const getPostMeta = (conversation) => {
-  const relatedPost = conversation?.relatedPost || conversation?.post || {};
-  const typeRaw = conversation?.postType || relatedPost?.type || conversation?.relatedPostType || '';
+  const rp = conversation?.relatedPost ?? conversation?.post;
+  const typeRaw = conversation?.postType || '';
   const type = String(typeRaw).toLowerCase();
   const postType = type === 'donation' || type === 'need' ? type : null;
-  const postId = relatedPost?._id || conversation?.postId || null;
-  const title = relatedPost?.title || relatedPost?.name || 'Related post';
+
+  let postId = conversation?.postId ?? null;
+  let title = 'Related post';
+  if (rp != null && typeof rp === 'object' && !Array.isArray(rp)) {
+    postId = rp._id ?? postId;
+    title = (rp.title || rp.name || '').trim() ? (rp.title || rp.name) : 'Related post';
+  } else if (rp != null) {
+    postId = rp;
+  }
+
   return { postType, postId, title };
 };
 

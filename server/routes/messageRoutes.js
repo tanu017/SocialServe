@@ -2,6 +2,7 @@ import express from 'express';
 import Conversation from '../models/Conversation.js';
 import Message from '../models/Message.js';
 import { protect } from '../middleware/auth.js';
+import { enrichConversationsWithRelatedPosts } from '../utils/conversationHelpers.js';
 
 const router = express.Router();
 
@@ -19,7 +20,8 @@ router.get('/', protect, async (req, res) => {
       .populate('participants', 'name avatar role')
       .sort({ lastMessageAt: -1 });
 
-    res.json(conversations);
+    const enriched = await enrichConversationsWithRelatedPosts(conversations);
+    res.json(enriched);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

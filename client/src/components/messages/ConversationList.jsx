@@ -12,7 +12,8 @@ const getResponseData = (response) => {
 
 const getOtherParticipant = (conversation, currentUserId) => {
   const participants = Array.isArray(conversation?.participants) ? conversation.participants : [];
-  return participants.find((participant) => participant?._id !== currentUserId) || participants[0];
+  const uid = currentUserId != null ? String(currentUserId) : '';
+  return participants.find((participant) => String(participant?._id) !== uid) || participants[0];
 };
 
 const getInitials = (name = '') =>
@@ -32,6 +33,12 @@ const getPostType = (conversation) => {
     '';
   const normalized = String(rawType).toLowerCase();
   return normalized === 'donation' || normalized === 'need' ? normalized : '';
+};
+
+const getRelatedPostTitle = (conversation) => {
+  const rp = conversation?.relatedPost;
+  if (rp && typeof rp === 'object' && rp.title) return String(rp.title).trim();
+  return '';
 };
 
 const getLastMessagePreview = (conversation) => {
@@ -160,6 +167,7 @@ export default function ConversationList({ selectedId, onSelect }) {
           );
           const isSelected = selectedId === conversationId;
           const postType = getPostType(conversation);
+          const relatedTitle = getRelatedPostTitle(conversation);
           const time = getConversationTime(conversation);
           const preview = getLastMessagePreview(conversation);
 
@@ -185,6 +193,14 @@ export default function ConversationList({ selectedId, onSelect }) {
                   <p className="truncate text-sm font-medium text-gray-900">{name}</p>
                   {time ? <span className="text-xs text-gray-400">{time}</span> : null}
                 </div>
+                {relatedTitle ? (
+                  <p
+                    className="mb-1 truncate text-[11px] text-gray-500"
+                    title={`Re: ${relatedTitle}`}
+                  >
+                    Re: {relatedTitle}
+                  </p>
+                ) : null}
                 <div className="flex items-center gap-2">
                   <p className="truncate text-xs text-gray-500">{preview}</p>
                   {postType ? (
