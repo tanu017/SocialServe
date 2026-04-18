@@ -61,10 +61,17 @@ export const AuthProvider = ({ children }) => {
       return response.data;
     } catch (error) {
       setIsAuthenticated(false);
-      const message = error?.response?.data?.message || error?.message || 'Login failed. Please try again.';
-      toast.error(message);
       throw error;
     }
+  };
+
+  /** Clears token and user state without redirect (e.g. login role mismatch). */
+  const clearLocalSession = () => {
+    localStorage.removeItem('SocialServe_token');
+    localStorage.removeItem('SocialServe_user');
+    setToken(null);
+    setUser(null);
+    setIsAuthenticated(false);
   };
 
   const register = async (data) => {
@@ -129,6 +136,7 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
+    clearLocalSession,
     updateProfile,
     applyUser,
   };
