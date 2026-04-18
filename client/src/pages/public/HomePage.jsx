@@ -103,24 +103,54 @@ export default function HomePage() {
         <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
           Give What You Have. Get What You Need.
         </h1>
-        <p className="text-xl text-gray-600 mt-4 mb-8">
+        <p className="text-xl text-gray-600 mt-4 mb-10">
           SocialServe connects donors with those in need — one item at a time.
         </p>
-        
-        {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
-          <button
-            onClick={() => navigate('/browse/donations')}
-            className="bg-green-600 text-white px-8 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors"
-          >
-            Browse Donations
-          </button>
-          <button
-            onClick={() => navigate('/register')}
-            className="border-2 border-green-600 text-green-600 px-8 py-3 rounded-lg font-medium hover:bg-green-50 transition-colors"
-          >
-            Post a Need
-          </button>
+
+        {/* CTAs: discover (browse) + share (create) */}
+        <div className="mx-auto mb-6 max-w-xl space-y-8 sm:max-w-2xl">
+          <div>
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-green-800/80">
+              Discover
+            </p>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+              <button
+                type="button"
+                onClick={() => navigate('/browse/donations')}
+                className="rounded-lg bg-green-600 px-6 py-3 text-center text-sm font-medium text-white shadow-sm transition-colors hover:bg-green-700 sm:text-base"
+              >
+                Browse Donations
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/browse/needs')}
+                className="rounded-lg bg-green-600 px-6 py-3 text-center text-sm font-medium text-white shadow-sm transition-colors hover:bg-green-700 sm:text-base"
+              >
+                Browse Needs
+              </button>
+            </div>
+          </div>
+          <div>
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-green-800/80">
+              Share
+            </p>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+              <button
+                type="button"
+                onClick={() => navigate('/dashboard/donator/posts/new')}
+                className="rounded-lg border-2 border-green-600 bg-white px-6 py-3 text-center text-sm font-medium text-green-600 transition-colors hover:bg-green-50 sm:text-base"
+              >
+                Post a Donation
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/dashboard/receiver/needs/new')}
+                className="rounded-lg border-2 border-green-600 bg-white px-6 py-3 text-center text-sm font-medium text-green-600 transition-colors hover:bg-green-50 sm:text-base"
+              >
+                Post a Need
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Trust Text */}
