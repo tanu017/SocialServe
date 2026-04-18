@@ -296,7 +296,7 @@ export default function RegisterPage() {
             {role === 'receiver' && (
               <div>
                 <label htmlFor="organizationName" className="block text-sm font-medium text-gray-700 mb-2">
-                  Organization Name (optional)
+                  Organization Name (required)
                 </label>
                 <input
                   id="organizationName"
