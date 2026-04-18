@@ -80,7 +80,7 @@ function LoginPage() {
     setIsLoading(true);
     try {
       const body = await login(email.trim(), password);
-      const userPayload = body?.data?.user ?? body?.user;
+      const userPayload = body?.user ?? body?.data?.user;
 
       if (!userPayload?._id) {
         clearLocalSession();
@@ -94,7 +94,7 @@ function LoginPage() {
         return;
       }
 
-      if (userPayload.role !== loginAs) {
+      if (userPayload.role !== 'admin' && userPayload.role !== loginAs) {
         clearLocalSession();
         const isDonator = userPayload.role === 'donator';
         setBannerError(

@@ -49,7 +49,8 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const response = await loginUser({ email, password });
-      const { token: newToken, user: userData } = response.data.data || response.data;
+      const payload = response.data?.data ?? response.data;
+      const { token: newToken, user: userData } = payload || {};
 
       localStorage.setItem('SocialServe_token', newToken);
       localStorage.setItem('SocialServe_user', JSON.stringify(userData));
@@ -58,7 +59,9 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
       setIsAuthenticated(true);
 
-      return response.data;
+      // Flatten `user` onto return value so callers (e.g. LoginPage) always get the same object as context
+      const body = response.data || {};
+      return { ...body, user: userData };
     } catch (error) {
       setIsAuthenticated(false);
       throw error;
