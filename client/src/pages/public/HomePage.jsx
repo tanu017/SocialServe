@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import PostGrid from '../../components/posts/PostGrid';
-import { getDonations, getNeeds, needDonation } from '../../services/postService';
+import { getDonations, getNeeds, needDonation, helpNeed } from '../../services/postService';
 
 function IconJoin() {
   return (
@@ -86,13 +86,28 @@ export default function HomePage() {
       navigate('/login');
       return;
     }
-    
+
     try {
       const response = await needDonation(donationId);
       const conversationId = response.data?.data?.conversationId || response.data?.conversationId;
       navigate(`/dashboard/receiver/messages/${conversationId}`);
     } catch (error) {
       console.error('Error requesting donation:', error);
+    }
+  };
+
+  const handleNeedCTA = async (needId) => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+
+    try {
+      const response = await helpNeed(needId);
+      const conversationId = response.data?.data?.conversationId || response.data?.conversationId;
+      navigate(`/dashboard/donator/messages/${conversationId}`);
+    } catch (error) {
+      console.error('Error offering help:', error);
     }
   };
 
@@ -316,7 +331,7 @@ export default function HomePage() {
             posts={needs}
             type="need"
             loading={loadingNeeds}
-            onCTAClick={() => {}} // Needs don't have CTA in this context
+            onCTAClick={handleNeedCTA}
           />
         </div>
       </section>
