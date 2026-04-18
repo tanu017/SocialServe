@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
@@ -32,6 +32,7 @@ function LoginPage() {
   const [bannerError, setBannerError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({ email: '', password: '' });
   const [authFailed, setAuthFailed] = useState(false);
+  const passwordInputRef = useRef(null);
 
   useEffect(() => {
     if (!loading && isAuthenticated && user) {
@@ -43,6 +44,12 @@ function LoginPage() {
       navigate(dashboardMap[user.role] || '/', { replace: true });
     }
   }, [isAuthenticated, user, loading, navigate]);
+
+  useEffect(() => {
+    if (authFailed) {
+      passwordInputRef.current?.focus();
+    }
+  }, [authFailed]);
 
   const clearFieldError = (field) => {
     setFieldErrors((prev) => ({ ...prev, [field]: '' }));
@@ -115,11 +122,14 @@ function LoginPage() {
     } catch (err) {
       const status = err?.response?.status;
       const msg = err?.response?.data?.message || '';
+      const isBadCredentials =
+        status === 401 || /invalid email or password/i.test(msg);
 
-      if (status === 401 || /invalid email or password/i.test(msg)) {
+      if (isBadCredentials) {
         setAuthFailed(true);
+        setPassword('');
         setBannerError(
-          'We couldn’t sign you in. Check your email and password and try again.'
+          'Invalid email or password. Check that your email is correct, then try your password again.'
         );
       } else if (status === 400) {
         setBannerError(msg || 'Please check your details and try again.');
@@ -134,7 +144,7 @@ function LoginPage() {
   };
 
   const emailInputClass = `${inputBase} ${
-    fieldErrors.email || authFailed
+    fieldErrors.email
       ? 'border-red-400 focus:border-red-500 focus:ring-red-200'
       : 'border-gray-200 focus:border-green-600 focus:ring-green-500/25'
   }`;
@@ -169,6 +179,7 @@ function LoginPage() {
 
           {bannerError ? (
             <div
+              id="login-banner-error"
               className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
               role="alert"
             >
@@ -207,6 +218,7 @@ function LoginPage() {
                 Password
               </label>
               <input
+                ref={passwordInputRef}
                 id="password"
                 type="password"
                 autoComplete="current-password"
@@ -217,12 +229,20 @@ function LoginPage() {
                 }}
                 placeholder="••••••••"
                 className={passwordInputClass}
-                aria-invalid={Boolean(fieldErrors.password)}
-                aria-describedby={fieldErrors.password ? 'password-error' : undefined}
+                aria-invalid={Boolean(fieldErrors.password || authFailed)}
+                aria-describedby={
+                  [fieldErrors.password && 'password-error', authFailed && 'password-auth-hint', bannerError && 'login-banner-error']
+                    .filter(Boolean)
+                    .join(' ') || undefined
+                }
               />
               {fieldErrors.password ? (
                 <p id="password-error" className="text-xs text-red-600" role="alert">
                   {fieldErrors.password}
+                </p>
+              ) : authFailed ? (
+                <p id="password-auth-hint" className="text-xs text-red-600" role="status">
+                  If you&apos;re sure about your email, try re-entering your password (caps lock off).
                 </p>
               ) : null}
             </div>

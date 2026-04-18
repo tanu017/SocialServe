@@ -32,11 +32,14 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
     if (error.response && error.response.status === 401) {
-      const requestUrl = `${error.config?.baseURL || ''}${error.config?.url || ''}`;
+      const url = String(error.config?.url || '');
+      const requestUrl = `${error.config?.baseURL || ''}${url}`;
       const isAuthCredentialError =
-        String(error.config?.url || '').includes('change-password') ||
-        requestUrl.includes('change-password');
-      // Wrong current password returns 401 — do not treat as expired session
+        url.includes('change-password') ||
+        url.includes('/auth/login') ||
+        requestUrl.includes('change-password') ||
+        requestUrl.includes('/auth/login');
+      // Wrong password on login/change-password returns 401 — do not clear session or redirect
       if (isAuthCredentialError) {
         return Promise.reject(error);
       }
