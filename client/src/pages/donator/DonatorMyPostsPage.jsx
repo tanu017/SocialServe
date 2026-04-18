@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/common/DashboardLayout';
 import api from '../../services/api';
 import { useSocket } from '../../context/SocketContext';
+import { getDonatorSidebarLinks } from '../../config/dashboardNav';
 
 const conditionClasses = {
   new: 'bg-blue-100 text-blue-700',
@@ -45,13 +46,6 @@ const getImageUrl = (post) => {
   return firstImage?.url || '';
 };
 
-const buildSidebarLinks = (unreadCount) => [
-  { label: 'Overview', to: '/dashboard/donator', icon: 'grid' },
-  { label: 'My Posts', to: '/dashboard/donator/posts', icon: 'list' },
-  { label: 'Create Post', to: '/dashboard/donator/posts/new', icon: 'plus' },
-  { label: 'Messages', to: '/dashboard/donator/messages', icon: 'chat', badge: unreadCount }
-];
-
 export default function DonatorMyPostsPage() {
   const navigate = useNavigate();
   const { unreadCount } = useSocket();
@@ -59,7 +53,7 @@ export default function DonatorMyPostsPage() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const sidebarLinks = useMemo(() => buildSidebarLinks(unreadCount), [unreadCount]);
+  const sidebarLinks = useMemo(() => getDonatorSidebarLinks(unreadCount), [unreadCount]);
 
   useEffect(() => {
     const fetchMyPosts = async () => {

@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/common/DashboardLayout';
 import { createNeed, getNeedById, updateNeed } from '../../services/postService';
 import { useSocket } from '../../context/SocketContext';
+import { getReceiverSidebarLinks } from '../../config/dashboardNav';
 
 const categories = ['food', 'clothing', 'furniture', 'electronics', 'medical', 'books', 'other'];
 
@@ -48,13 +49,6 @@ const getErrorClass = (hasError) =>
     hasError ? 'border-red-400 focus:border-red-500' : 'border-gray-300 focus:border-green-500'
   }`;
 
-const buildSidebarLinks = (unreadCount) => [
-  { label: 'Overview', to: '/dashboard/receiver', icon: 'grid' },
-  { label: 'My Needs', to: '/dashboard/receiver/needs', icon: 'list' },
-  { label: 'Post a Need', to: '/dashboard/receiver/needs/new', icon: 'plus' },
-  { label: 'Messages', to: '/dashboard/receiver/messages', icon: 'chat', badge: unreadCount }
-];
-
 export default function NeedPostFormPage() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -62,7 +56,7 @@ export default function NeedPostFormPage() {
   const { unreadCount } = useSocket();
 
   const isEditMode = location.pathname.includes('/dashboard/receiver/needs/edit/') && !!id;
-  const sidebarLinks = useMemo(() => buildSidebarLinks(unreadCount), [unreadCount]);
+  const sidebarLinks = useMemo(() => getReceiverSidebarLinks(unreadCount), [unreadCount]);
 
   const [formData, setFormData] = useState(initialFormState);
   const [errors, setErrors] = useState({});

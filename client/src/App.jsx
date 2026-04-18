@@ -22,6 +22,7 @@ import ReceiverDashboard from './pages/receiver/ReceiverDashboard';
 import ReceiverMyNeedsPage from './pages/receiver/ReceiverMyNeedsPage';
 import NeedPostFormPage from './pages/receiver/NeedPostFormPage';
 import ReceiverInboxPage from './pages/receiver/ReceiverInboxPage';
+import ProfilePage from './pages/profile/ProfilePage';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import AdminUserListPage from './pages/admin/AdminUserListPage';
 import AdminUserDetailPage from './pages/admin/AdminUserDetailPage';
@@ -146,6 +147,14 @@ function App() {
             }
           />
           <Route
+            path="/dashboard/donator/profile"
+            element={
+              <ProtectedRoute allowedRoles={['donator']}>
+                <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/dashboard/receiver"
             element={
               <ProtectedRoute allowedRoles={['receiver']}>
@@ -190,6 +199,14 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['receiver']}>
                 <ReceiverInboxPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard/receiver/profile"
+            element={
+              <ProtectedRoute allowedRoles={['receiver']}>
+                <ProfilePage />
               </ProtectedRoute>
             }
           />

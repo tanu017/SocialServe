@@ -19,3 +19,7 @@ export const logoutUser = () => {
 export const changePassword = (data) => {
   return api.put('/auth/change-password', data);
 };
+
+export const updateProfile = (data) => {
+  return api.put('/auth/profile', data);
+};

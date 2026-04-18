@@ -6,19 +6,13 @@ import ChatWindow from '../../components/messages/ChatWindow';
 import api from '../../services/api';
 import { useSocket } from '../../context/SocketContext';
 import { useAuth } from '../../context/AuthContext';
+import { getDonatorSidebarLinks } from '../../config/dashboardNav';
 
 const getConversationsFromResponse = (response) => {
   if (Array.isArray(response?.data?.data)) return response.data.data;
   if (Array.isArray(response?.data)) return response.data;
   return [];
 };
-
-const buildSidebarLinks = (unreadCount) => [
-  { label: 'Overview', to: '/dashboard/donator', icon: 'grid' },
-  { label: 'My Posts', to: '/dashboard/donator/posts', icon: 'list' },
-  { label: 'Create Post', to: '/dashboard/donator/posts/new', icon: 'plus' },
-  { label: 'Messages', to: '/dashboard/donator/messages', icon: 'chat', badge: unreadCount }
-];
 
 export default function DonatorInboxPage() {
   const navigate = useNavigate();
@@ -28,7 +22,7 @@ export default function DonatorInboxPage() {
 
   const [selectedConversation, setSelectedConversation] = useState(null);
 
-  const sidebarLinks = useMemo(() => buildSidebarLinks(unreadCount), [unreadCount]);
+  const sidebarLinks = useMemo(() => getDonatorSidebarLinks(unreadCount), [unreadCount]);
 
   useEffect(() => {
     if (!conversationId) return;

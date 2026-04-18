@@ -35,6 +35,12 @@ export default function Navbar() {
     }
   };
 
+  const getProfileLink = () => {
+    if (user?.role === 'donator') return '/dashboard/donator/profile';
+    if (user?.role === 'receiver') return '/dashboard/receiver/profile';
+    return null;
+  };
+
   const getDashboardLabel = () => {
     switch (user?.role) {
       case 'admin':
@@ -182,16 +188,34 @@ export default function Navbar() {
                     </Link>
                   ) : null}
 
-                  {/* Avatar */}
+                  {/* Avatar — link to profile for donator / receiver */}
                   <div className="flex-shrink-0">
-                    {user?.avatar ? (
+                    {getProfileLink() ? (
+                      <Link
+                        to={getProfileLink()}
+                        className="block rounded-full ring-offset-2 hover:ring-2 hover:ring-green-400"
+                        title="Profile"
+                      >
+                        {user?.avatar ? (
+                          <img
+                            src={user.avatar}
+                            alt={user.name}
+                            className="h-10 w-10 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 text-sm font-semibold text-green-800">
+                            {getInitials()}
+                          </div>
+                        )}
+                      </Link>
+                    ) : user?.avatar ? (
                       <img
                         src={user.avatar}
                         alt={user.name}
-                        className="w-10 h-10 rounded-full object-cover"
+                        className="h-10 w-10 rounded-full object-cover"
                       />
                     ) : (
-                      <div className="w-10 h-10 rounded-full bg-green-100 text-green-800 flex items-center justify-center font-semibold">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green-100 font-semibold text-green-800">
                         {getInitials()}
                       </div>
                     )}
@@ -300,6 +324,15 @@ export default function Navbar() {
                           {unreadCount}
                         </span>
                       ) : null}
+                    </Link>
+                  ) : null}
+                  {getProfileLink() ? (
+                    <Link
+                      to={getProfileLink()}
+                      className="block py-2 text-gray-600"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Profile
                     </Link>
                   ) : null}
                   <button

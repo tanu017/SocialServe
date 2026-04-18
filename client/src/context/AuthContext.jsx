@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { loginUser, registerUser, logoutUser, getMe } from '../services/authService';
+import { loginUser, registerUser, logoutUser, getMe, updateProfile as updateProfileRequest } from '../services/authService';
 
 const AuthContext = createContext();
 
@@ -103,6 +103,17 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const updateProfile = async (data) => {
+    const response = await updateProfileRequest(data);
+    const payload = response?.data?.data ?? response?.data;
+    const nextUser = payload?.user ?? payload;
+    if (nextUser?._id) {
+      setUser(nextUser);
+      localStorage.setItem('SocialServe_user', JSON.stringify(nextUser));
+    }
+    return response;
+  };
+
   const value = {
     user,
     token,
@@ -110,7 +121,8 @@ export const AuthProvider = ({ children }) => {
     isAuthenticated,
     login,
     register,
-    logout
+    logout,
+    updateProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

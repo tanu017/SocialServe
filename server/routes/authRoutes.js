@@ -151,6 +151,84 @@ router.post('/logout', (req, res) => {
   });
 });
 
+// PUT /profile (protected) — update user fields; email cannot be changed here
+router.put('/profile', protect, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found.',
+      });
+    }
+
+    const {
+      name,
+      phone,
+      bio,
+      organizationName,
+      contactPerson,
+      website,
+      avatar,
+      address,
+    } = req.body;
+
+    if (name !== undefined) {
+      const trimmed = String(name).trim();
+      if (!trimmed) {
+        return res.status(400).json({
+          success: false,
+          message: 'Name cannot be empty.',
+        });
+      }
+      user.name = trimmed;
+    }
+    if (phone !== undefined) user.phone = phone || '';
+    if (bio !== undefined) {
+      const b = String(bio || '').trim();
+      if (b.length > 500) {
+        return res.status(400).json({
+          success: false,
+          message: 'Description must be 500 characters or less.',
+        });
+      }
+      user.bio = b || undefined;
+    }
+    if (organizationName !== undefined) user.organizationName = organizationName || '';
+    if (contactPerson !== undefined) user.contactPerson = contactPerson || '';
+    if (website !== undefined) user.website = website || '';
+    if (avatar !== undefined) user.avatar = avatar || '';
+
+    if (address !== undefined && typeof address === 'object' && address !== null) {
+      user.address = user.address || {};
+      const { street, city, state, pincode, country } = address;
+      if (street !== undefined) user.address.street = street || '';
+      if (city !== undefined) user.address.city = city || '';
+      if (state !== undefined) user.address.state = state || '';
+      if (pincode !== undefined) user.address.pincode = pincode || '';
+      if (country !== undefined) user.address.country = country || '';
+    }
+
+    await user.save();
+
+    const userResponse = user.toObject();
+    delete userResponse.password;
+
+    return res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully.',
+      data: {
+        user: userResponse,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Profile update failed.',
+    });
+  }
+});
+
 // PUT /change-password (protected)
 router.put('/change-password', protect, async (req, res) => {
   try {

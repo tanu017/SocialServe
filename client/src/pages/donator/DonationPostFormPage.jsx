@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/common/DashboardLayout';
 import { createDonation, getDonationById, updateDonation } from '../../services/postService';
 import { useSocket } from '../../context/SocketContext';
+import { getDonatorSidebarLinks } from '../../config/dashboardNav';
 
 const categories = ['food', 'clothing', 'furniture', 'electronics', 'medical', 'books', 'other'];
 const conditions = ['new', 'good', 'fair'];
@@ -44,13 +45,6 @@ const getErrorClass = (hasError) =>
     hasError ? 'border-red-400 focus:border-red-500' : 'border-gray-300 focus:border-green-500'
   }`;
 
-const buildSidebarLinks = (unreadCount) => [
-  { label: 'Overview', to: '/dashboard/donator', icon: 'grid' },
-  { label: 'My Posts', to: '/dashboard/donator/posts', icon: 'list' },
-  { label: 'Create Post', to: '/dashboard/donator/posts/new', icon: 'plus' },
-  { label: 'Messages', to: '/dashboard/donator/messages', icon: 'chat', badge: unreadCount }
-];
-
 export default function DonationPostFormPage() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -58,7 +52,7 @@ export default function DonationPostFormPage() {
   const { unreadCount } = useSocket();
 
   const isEditMode = location.pathname.includes('/dashboard/donator/posts/edit/') && !!id;
-  const sidebarLinks = useMemo(() => buildSidebarLinks(unreadCount), [unreadCount]);
+  const sidebarLinks = useMemo(() => getDonatorSidebarLinks(unreadCount), [unreadCount]);
 
   const [formData, setFormData] = useState(initialFormState);
   const [errors, setErrors] = useState({});

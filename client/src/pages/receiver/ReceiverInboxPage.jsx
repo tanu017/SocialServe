@@ -6,19 +6,13 @@ import ChatWindow from '../../components/messages/ChatWindow';
 import api from '../../services/api';
 import { useSocket } from '../../context/SocketContext';
 import { useAuth } from '../../context/AuthContext';
+import { getReceiverSidebarLinks } from '../../config/dashboardNav';
 
 const getConversationsFromResponse = (response) => {
   if (Array.isArray(response?.data?.data)) return response.data.data;
   if (Array.isArray(response?.data)) return response.data;
   return [];
 };
-
-const buildSidebarLinks = (unreadCount) => [
-  { label: 'Overview', to: '/dashboard/receiver', icon: 'grid' },
-  { label: 'My Needs', to: '/dashboard/receiver/needs', icon: 'list' },
-  { label: 'Post a Need', to: '/dashboard/receiver/needs/new', icon: 'plus' },
-  { label: 'Messages', to: '/dashboard/receiver/messages', icon: 'chat', badge: unreadCount }
-];
 
 export default function ReceiverInboxPage() {
   const navigate = useNavigate();
@@ -27,7 +21,7 @@ export default function ReceiverInboxPage() {
   const { user } = useAuth();
 
   const [selectedConversation, setSelectedConversation] = useState(null);
-  const sidebarLinks = useMemo(() => buildSidebarLinks(unreadCount), [unreadCount]);
+  const sidebarLinks = useMemo(() => getReceiverSidebarLinks(unreadCount), [unreadCount]);
 
   useEffect(() => {
     if (!conversationId) return;

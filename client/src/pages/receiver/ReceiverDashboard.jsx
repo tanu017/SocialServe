@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/common/DashboardLayout';
 import api from '../../services/api';
 import { useSocket } from '../../context/SocketContext';
+import { getReceiverSidebarLinks } from '../../config/dashboardNav';
 
 const urgencyClasses = {
   critical: 'bg-red-100 text-red-700',
@@ -32,13 +33,6 @@ const formatDate = (value) => {
   return date.toLocaleDateString();
 };
 
-const buildSidebarLinks = (unreadCount) => [
-  { label: 'Overview', to: '/dashboard/receiver', icon: 'grid' },
-  { label: 'My Needs', to: '/dashboard/receiver/needs', icon: 'list' },
-  { label: 'Post a Need', to: '/dashboard/receiver/needs/new', icon: 'plus' },
-  { label: 'Messages', to: '/dashboard/receiver/messages', icon: 'chat', badge: unreadCount }
-];
-
 export default function ReceiverDashboard() {
   const navigate = useNavigate();
   const { unreadCount } = useSocket();
@@ -46,7 +40,7 @@ export default function ReceiverDashboard() {
   const [loading, setLoading] = useState(true);
   const [pendingDeleteId, setPendingDeleteId] = useState(null);
 
-  const sidebarLinks = useMemo(() => buildSidebarLinks(unreadCount), [unreadCount]);
+  const sidebarLinks = useMemo(() => getReceiverSidebarLinks(unreadCount), [unreadCount]);
 
   useEffect(() => {
     const fetchMyNeeds = async () => {
