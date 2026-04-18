@@ -3,7 +3,7 @@ import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/common/DashboardLayout';
 import { useAuth } from '../../context/AuthContext';
 import { useSocket } from '../../context/SocketContext';
-import { getMe, uploadAvatar } from '../../services/authService';
+import { getMe, uploadAvatar, changePassword } from '../../services/authService';
 import { getDonatorSidebarLinks, getReceiverSidebarLinks } from '../../config/dashboardNav';
 
 const AVATAR_ACCEPT = ['image/jpeg', 'image/png', 'image/webp'];
@@ -56,6 +56,10 @@ export default function ProfilePage() {
   const [isDragging, setIsDragging] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
   const avatarInputRef = useRef(null);
+  const [pwdCurrent, setPwdCurrent] = useState('');
+  const [pwdNew, setPwdNew] = useState('');
+  const [pwdConfirm, setPwdConfirm] = useState('');
+  const [pwdSaving, setPwdSaving] = useState(false);
 
   const sidebarLinks = useMemo(() => {
     if (user?.role === 'receiver') return getReceiverSidebarLinks(unreadCount);
@@ -174,6 +178,35 @@ export default function ProfilePage() {
       toast.error(msg);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handlePasswordSubmit = async (e) => {
+    e.preventDefault();
+    if (!pwdCurrent || !pwdNew) {
+      toast.error('Enter your current password and a new password.');
+      return;
+    }
+    if (pwdNew.length < 6) {
+      toast.error('New password must be at least 6 characters.');
+      return;
+    }
+    if (pwdNew !== pwdConfirm) {
+      toast.error('New password and confirmation do not match.');
+      return;
+    }
+    setPwdSaving(true);
+    try {
+      await changePassword({ currentPassword: pwdCurrent, newPassword: pwdNew });
+      setPwdCurrent('');
+      setPwdNew('');
+      setPwdConfirm('');
+      toast.success('Password updated.');
+    } catch (err) {
+      const msg = err?.response?.data?.message || err?.message || 'Could not change password.';
+      toast.error(msg);
+    } finally {
+      setPwdSaving(false);
     }
   };
 
@@ -403,6 +436,73 @@ export default function ProfilePage() {
               className="rounded-lg bg-green-600 px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-green-700 disabled:opacity-60"
             >
               {saving ? 'Saving…' : 'Save changes'}
+            </button>
+          </div>
+        </form>
+
+        <form
+          onSubmit={handlePasswordSubmit}
+          className="mt-8 space-y-5 rounded-xl border border-gray-200 bg-white p-6 shadow-sm"
+        >
+          <div>
+            <h2 className="text-lg font-semibold text-gray-900">Change password</h2>
+            <p className="mt-1 text-sm text-gray-500">
+              Use a strong password you have not used elsewhere on this site.
+            </p>
+          </div>
+
+          <div>
+            <label htmlFor="pwd-current" className="mb-1 block text-sm font-medium text-gray-700">
+              Current password
+            </label>
+            <input
+              id="pwd-current"
+              type="password"
+              value={pwdCurrent}
+              onChange={(e) => setPwdCurrent(e.target.value)}
+              autoComplete="current-password"
+              className={inputClass}
+            />
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label htmlFor="pwd-new" className="mb-1 block text-sm font-medium text-gray-700">
+                New password
+              </label>
+              <input
+                id="pwd-new"
+                type="password"
+                value={pwdNew}
+                onChange={(e) => setPwdNew(e.target.value)}
+                autoComplete="new-password"
+                className={inputClass}
+                minLength={6}
+              />
+            </div>
+            <div>
+              <label htmlFor="pwd-confirm" className="mb-1 block text-sm font-medium text-gray-700">
+                Confirm new password
+              </label>
+              <input
+                id="pwd-confirm"
+                type="password"
+                value={pwdConfirm}
+                onChange={(e) => setPwdConfirm(e.target.value)}
+                autoComplete="new-password"
+                className={inputClass}
+                minLength={6}
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end border-t border-gray-100 pt-4">
+            <button
+              type="submit"
+              disabled={pwdSaving}
+              className="rounded-lg border border-gray-300 bg-white px-6 py-2.5 text-sm font-medium text-gray-800 transition-colors hover:bg-gray-50 disabled:opacity-60"
+            >
+              {pwdSaving ? 'Updating…' : 'Update password'}
             </button>
           </div>
         </form>
