@@ -71,6 +71,16 @@ const secondaryCards = (stats) => [
   }
 ];
 
+/** Demo-only activity lines for the admin overview (replace with API when available). */
+const FAKE_RECENT_ACTIVITY = [
+  { id: '1', icon: '👤', text: 'Priya Kumar registered as a donator', time: '2 min ago' },
+  { id: '2', icon: '🎁', text: 'New donation: “Winter jackets” posted in Bangalore', time: '18 min ago' },
+  { id: '3', icon: '🙏', text: 'Hope Foundation requested canned goods (urgent)', time: '1 hr ago' },
+  { id: '4', icon: '✅', text: 'Donation “School books” marked as fulfilled', time: '2 hr ago' },
+  { id: '5', icon: '🔔', text: '3 new users pending verification', time: '3 hr ago' },
+  { id: '6', icon: '💬', text: 'New message thread: donor ↔ receiver for “Blankets”', time: '5 hr ago' }
+];
+
 function PrimaryStatCard({ card }) {
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-5">
@@ -192,9 +202,20 @@ export default function AdminDashboardPage() {
 
             <div className="rounded-xl border border-gray-200 bg-white p-5">
               <p className="text-lg font-semibold text-gray-900">Recent Activity</p>
-              <div className="mt-6 rounded-lg border border-dashed border-gray-300 bg-gray-50 p-6 text-sm text-gray-500">
-                Activity feed coming soon
-              </div>
+              <p className="mt-1 text-xs text-gray-400">Sample activity — connect to live feed when ready</p>
+              <ul className="mt-4 divide-y divide-gray-100">
+                {FAKE_RECENT_ACTIVITY.map((item) => (
+                  <li key={item.id} className="flex gap-3 py-3 first:pt-0">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-100 text-base" aria-hidden>
+                      {item.icon}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm text-gray-800">{item.text}</p>
+                      <p className="mt-0.5 text-xs text-gray-400">{item.time}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>
