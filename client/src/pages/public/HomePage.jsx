@@ -123,9 +123,9 @@ export default function HomePage() {
         </p>
 
         {/* CTAs: discover (browse) + share (create) */}
-        <div className="mx-auto mb-6 max-w-xl space-y-8 sm:max-w-2xl">
+        <div className="mx-auto mb-6 max-w-xl space-y-9 sm:max-w-2xl sm:space-y-10">
           <div>
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-green-800/80">
+            <p className="mb-4 text-xs font-semibold uppercase tracking-normal text-green-800/80 sm:mb-5">
               Discover
             </p>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
@@ -146,7 +146,7 @@ export default function HomePage() {
             </div>
           </div>
           <div>
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-green-800/80">
+            <p className="mb-4 text-xs font-semibold uppercase tracking-normal text-green-800/80 sm:mb-5">
               Share
             </p>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
