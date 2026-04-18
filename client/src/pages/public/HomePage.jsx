@@ -51,8 +51,9 @@ export default function HomePage() {
       try {
         setLoadingDonations(true);
         const res = await getDonations({ page: 1, limit: 6 });
-        // Try both response shapes
-        const donations = res.data?.data || res.data?.donations || res.data || [];
+        const responseData = res?.data || {};
+        const data = responseData?.data || {};
+        const donations = data?.posts || responseData?.donations || responseData || [];
         setDonations(Array.isArray(donations) ? donations : []);
       } catch (error) {
         console.error('Error fetching donations:', error);
@@ -64,8 +65,9 @@ export default function HomePage() {
       try {
         setLoadingNeeds(true);
         const res = await getNeeds({ page: 1, limit: 3 });
-        // Try both response shapes
-        const needs = res.data?.data || res.data?.needs || res.data || [];
+        const responseData = res?.data || {};
+        const data = responseData?.data || {};
+        const needs = data?.posts || responseData?.needs || responseData || [];
         setNeeds(Array.isArray(needs) ? needs : []);
       } catch (error) {
         console.error('Error fetching needs:', error);
