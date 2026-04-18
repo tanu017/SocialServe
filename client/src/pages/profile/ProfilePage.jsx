@@ -47,6 +47,8 @@ function mapUserToForm(u) {
 const inputClass =
   'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-green-500';
 
+const pwdFieldErrorClass = 'border-red-500 focus:border-red-500';
+
 export default function ProfilePage() {
   const { user, updateProfile, applyUser } = useAuth();
   const { unreadCount } = useSocket();
@@ -60,6 +62,10 @@ export default function ProfilePage() {
   const [pwdNew, setPwdNew] = useState('');
   const [pwdConfirm, setPwdConfirm] = useState('');
   const [pwdSaving, setPwdSaving] = useState(false);
+  const [pwdErrors, setPwdErrors] = useState({ current: '', new: '', confirm: '' });
+
+  const pwdInputClass = (field) =>
+    `${inputClass} ${pwdErrors[field] ? pwdFieldErrorClass : ''}`;
 
   const sidebarLinks = useMemo(() => {
     if (user?.role === 'receiver') return getReceiverSidebarLinks(unreadCount);
@@ -181,21 +187,27 @@ export default function ProfilePage() {
     }
   };
 
+  const validatePasswordFields = () => {
+    const next = { current: '', new: '', confirm: '' };
+    const cur = pwdCurrent.trim();
+    const neu = pwdNew;
+    const conf = pwdConfirm;
+
+    if (!cur) next.current = 'Enter your current password.';
+    if (!neu) next.new = 'Enter a new password.';
+    else if (neu.length < 6) next.new = 'Use at least 6 characters.';
+    if (neu !== conf) next.confirm = 'Does not match the new password.';
+
+    setPwdErrors(next);
+    return !next.current && !next.new && !next.confirm;
+  };
+
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
-    if (!pwdCurrent || !pwdNew) {
-      toast.error('Enter your current password and a new password.');
-      return;
-    }
-    if (pwdNew.length < 6) {
-      toast.error('New password must be at least 6 characters.');
-      return;
-    }
-    if (pwdNew !== pwdConfirm) {
-      toast.error('New password and confirmation do not match.');
-      return;
-    }
+    if (!validatePasswordFields()) return;
+
     setPwdSaving(true);
+    setPwdErrors({ current: '', new: '', confirm: '' });
     try {
       await changePassword({ currentPassword: pwdCurrent, newPassword: pwdNew });
       setPwdCurrent('');
@@ -203,8 +215,27 @@ export default function ProfilePage() {
       setPwdConfirm('');
       toast.success('Password updated.');
     } catch (err) {
-      const msg = err?.response?.data?.message || err?.message || 'Could not change password.';
-      toast.error(msg);
+      const msg =
+        err?.response?.data?.message ||
+        err?.response?.data?.error ||
+        err?.message ||
+        'Could not change password.';
+      const status = err?.response?.status;
+      const lower = String(msg).toLowerCase();
+      const isWrongCurrentPassword =
+        /current password is incorrect/i.test(msg) ||
+        (lower.includes('current password') && lower.includes('incorrect'));
+
+      if (status === 401 && isWrongCurrentPassword) {
+        setPwdErrors((prev) => ({ ...prev, current: msg }));
+      } else if (status === 401) {
+        toast.error(msg || 'Session expired. Please log in again.');
+        localStorage.removeItem('SocialServe_token');
+        localStorage.removeItem('SocialServe_user');
+        window.location.href = '/login';
+      } else {
+        toast.error(msg);
+      }
     } finally {
       setPwdSaving(false);
     }
@@ -459,10 +490,20 @@ export default function ProfilePage() {
               id="pwd-current"
               type="password"
               value={pwdCurrent}
-              onChange={(e) => setPwdCurrent(e.target.value)}
+              onChange={(e) => {
+                setPwdCurrent(e.target.value);
+                setPwdErrors((prev) => ({ ...prev, current: '' }));
+              }}
               autoComplete="current-password"
-              className={inputClass}
+              className={pwdInputClass('current')}
+              aria-invalid={Boolean(pwdErrors.current)}
+              aria-describedby={pwdErrors.current ? 'pwd-current-error' : undefined}
             />
+            {pwdErrors.current ? (
+              <p id="pwd-current-error" className="mt-1 text-xs text-red-600" role="alert">
+                {pwdErrors.current}
+              </p>
+            ) : null}
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
@@ -474,11 +515,22 @@ export default function ProfilePage() {
                 id="pwd-new"
                 type="password"
                 value={pwdNew}
-                onChange={(e) => setPwdNew(e.target.value)}
+                onChange={(e) => {
+                  setPwdNew(e.target.value);
+                  setPwdErrors((prev) => ({ ...prev, new: '', confirm: '' }));
+                }}
                 autoComplete="new-password"
-                className={inputClass}
-                minLength={6}
+                className={pwdInputClass('new')}
+                aria-invalid={Boolean(pwdErrors.new)}
+                aria-describedby={pwdErrors.new ? 'pwd-new-error' : undefined}
               />
+              {pwdErrors.new ? (
+                <p id="pwd-new-error" className="mt-1 text-xs text-red-600" role="alert">
+                  {pwdErrors.new}
+                </p>
+              ) : (
+                <p className="mt-1 text-xs text-gray-400">At least 6 characters</p>
+              )}
             </div>
             <div>
               <label htmlFor="pwd-confirm" className="mb-1 block text-sm font-medium text-gray-700">
@@ -488,11 +540,20 @@ export default function ProfilePage() {
                 id="pwd-confirm"
                 type="password"
                 value={pwdConfirm}
-                onChange={(e) => setPwdConfirm(e.target.value)}
+                onChange={(e) => {
+                  setPwdConfirm(e.target.value);
+                  setPwdErrors((prev) => ({ ...prev, confirm: '' }));
+                }}
                 autoComplete="new-password"
-                className={inputClass}
-                minLength={6}
+                className={pwdInputClass('confirm')}
+                aria-invalid={Boolean(pwdErrors.confirm)}
+                aria-describedby={pwdErrors.confirm ? 'pwd-confirm-error' : undefined}
               />
+              {pwdErrors.confirm ? (
+                <p id="pwd-confirm-error" className="mt-1 text-xs text-red-600" role="alert">
+                  {pwdErrors.confirm}
+                </p>
+              ) : null}
             </div>
           </div>
 

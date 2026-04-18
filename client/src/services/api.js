@@ -32,6 +32,14 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
     if (error.response && error.response.status === 401) {
+      const requestUrl = `${error.config?.baseURL || ''}${error.config?.url || ''}`;
+      const isAuthCredentialError =
+        String(error.config?.url || '').includes('change-password') ||
+        requestUrl.includes('change-password');
+      // Wrong current password returns 401 — do not treat as expired session
+      if (isAuthCredentialError) {
+        return Promise.reject(error);
+      }
       localStorage.removeItem('SocialServe_token');
       localStorage.removeItem('SocialServe_user');
       window.location.href = '/login';
