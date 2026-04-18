@@ -114,6 +114,13 @@ export const AuthProvider = ({ children }) => {
     return response;
   };
 
+  const applyUser = (nextUser) => {
+    if (nextUser?._id) {
+      setUser(nextUser);
+      localStorage.setItem('SocialServe_user', JSON.stringify(nextUser));
+    }
+  };
+
   const value = {
     user,
     token,
@@ -123,6 +130,7 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     updateProfile,
+    applyUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

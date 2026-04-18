@@ -3,6 +3,7 @@ import User from '../models/User.js';
 import generateToken from '../utils/generateToken.js';
 import { protect } from '../middleware/auth.js';
 import { getPlatformSettings } from '../utils/platformSettings.js';
+import { multerAvatar, uploadToCloudinary } from '../middleware/upload.js';
 
 const router = express.Router();
 
@@ -149,6 +150,46 @@ router.post('/logout', (req, res) => {
     success: true,
     message: 'Logged out successfully.',
   });
+});
+
+// POST /profile/avatar (protected) — upload a single profile photo (replaces existing)
+router.post('/profile/avatar', protect, multerAvatar, async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: 'No image file provided.',
+      });
+    }
+
+    const url = await uploadToCloudinary(req.file.buffer, 'SocialServe/avatars');
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found.',
+      });
+    }
+
+    user.avatar = url;
+    await user.save();
+
+    const userResponse = user.toObject();
+    delete userResponse.password;
+
+    return res.status(200).json({
+      success: true,
+      message: 'Profile photo updated.',
+      data: {
+        user: userResponse,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Upload failed.',
+    });
+  }
 });
 
 // PUT /profile (protected) — update user fields; email cannot be changed here

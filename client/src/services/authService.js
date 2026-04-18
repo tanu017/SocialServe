@@ -23,3 +23,9 @@ export const changePassword = (data) => {
 export const updateProfile = (data) => {
   return api.put('/auth/profile', data);
 };
+
+export const uploadAvatar = (file) => {
+  const formData = new FormData();
+  formData.append('avatar', file);
+  return api.post('/auth/profile/avatar', formData);
+};

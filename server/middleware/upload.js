@@ -66,8 +66,17 @@ const uploadToCloudinary = (fileBuffer, folder) => {
   });
 };
 
+const multerAvatar = multer({
+  storage,
+  fileFilter,
+  limits: {
+    fileSize: MAX_FILE_SIZE,
+  },
+}).single('avatar');
+
 export {
   multerUpload,
+  multerAvatar,
   multerErrorHandler,
   uploadToCloudinary,
 };

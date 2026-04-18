@@ -1,10 +1,13 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/common/DashboardLayout';
 import { useAuth } from '../../context/AuthContext';
 import { useSocket } from '../../context/SocketContext';
-import { getMe } from '../../services/authService';
+import { getMe, uploadAvatar } from '../../services/authService';
 import { getDonatorSidebarLinks, getReceiverSidebarLinks } from '../../config/dashboardNav';
+
+const AVATAR_ACCEPT = ['image/jpeg', 'image/png', 'image/webp'];
+const MAX_AVATAR_BYTES = 5 * 1024 * 1024;
 
 const emptyAddress = () => ({
   street: '',
@@ -45,11 +48,14 @@ const inputClass =
   'w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 outline-none focus:border-green-500';
 
 export default function ProfilePage() {
-  const { user, updateProfile } = useAuth();
+  const { user, updateProfile, applyUser } = useAuth();
   const { unreadCount } = useSocket();
   const [formData, setFormData] = useState(() => mapUserToForm(user));
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const avatarInputRef = useRef(null);
 
   const sidebarLinks = useMemo(() => {
     if (user?.role === 'receiver') return getReceiverSidebarLinks(unreadCount);
@@ -94,6 +100,56 @@ export default function ProfilePage() {
     }));
   };
 
+  const processAvatarFile = async (file) => {
+    if (!file) return;
+    if (!AVATAR_ACCEPT.includes(file.type)) {
+      toast.error('Please use a JPEG, PNG, or WebP image.');
+      return;
+    }
+    if (file.size > MAX_AVATAR_BYTES) {
+      toast.error('Image must be 5MB or smaller.');
+      return;
+    }
+    setAvatarUploading(true);
+    try {
+      const res = await uploadAvatar(file);
+      const payload = res?.data?.data ?? res?.data;
+      const nextUser = payload?.user ?? payload;
+      if (nextUser?._id) {
+        applyUser(nextUser);
+        setFormData((prev) => ({ ...prev, avatar: nextUser.avatar || '' }));
+      }
+      toast.success('Profile photo updated.');
+    } catch (err) {
+      const msg = err?.response?.data?.message || err?.message || 'Upload failed.';
+      toast.error(msg);
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
+
+  const handleAvatarDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer?.files?.[0];
+    if (file) processAvatarFile(file);
+  };
+
+  const handleRemoveAvatar = async () => {
+    if (!formData.avatar) return;
+    setAvatarUploading(true);
+    try {
+      await updateProfile({ avatar: '' });
+      setFormData((prev) => ({ ...prev, avatar: '' }));
+      toast.success('Profile photo removed.');
+    } catch (err) {
+      const msg = err?.response?.data?.message || err?.message || 'Could not remove photo.';
+      toast.error(msg);
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name?.trim()) {
@@ -109,7 +165,7 @@ export default function ProfilePage() {
         organizationName: formData.organizationName,
         contactPerson: formData.contactPerson,
         website: formData.website,
-        avatar: formData.avatar,
+        avatar: formData.avatar || '',
         address: formData.address,
       });
       toast.success('Profile saved.');
@@ -241,18 +297,60 @@ export default function ProfilePage() {
           </div>
 
           <div>
-            <label htmlFor="avatar" className="mb-1 block text-sm font-medium text-gray-700">
-              Profile photo URL
-            </label>
-            <input
-              id="avatar"
-              name="avatar"
-              type="url"
-              value={formData.avatar}
-              onChange={handleChange}
-              placeholder="https://…"
-              className={inputClass}
-            />
+            <p className="mb-2 text-sm font-medium text-gray-700">Profile photo</p>
+            <p className="mb-2 text-xs text-gray-500">One image — JPEG, PNG, or WebP, up to 5MB.</p>
+            <div
+              onDragOver={(e) => {
+                e.preventDefault();
+                setIsDragging(true);
+              }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={handleAvatarDrop}
+              className={`rounded-lg border-2 border-dashed p-6 text-center ${
+                isDragging ? 'border-green-400 bg-green-50' : 'border-gray-300'
+              } ${avatarUploading ? 'pointer-events-none opacity-60' : ''}`}
+            >
+              <p className="mb-3 text-sm text-gray-600">
+                Drag and drop an image here, or click to browse
+              </p>
+              <button
+                type="button"
+                onClick={() => avatarInputRef.current?.click()}
+                disabled={avatarUploading}
+                className="rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {avatarUploading ? 'Uploading…' : 'Browse image'}
+              </button>
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) processAvatarFile(file);
+                  e.target.value = '';
+                }}
+                disabled={avatarUploading}
+              />
+            </div>
+            {formData.avatar ? (
+              <div className="mt-4 flex flex-wrap items-center gap-4">
+                <img
+                  src={formData.avatar}
+                  alt="Profile preview"
+                  className="h-24 w-24 rounded-lg border border-gray-200 object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={handleRemoveAvatar}
+                  disabled={avatarUploading}
+                  className="text-sm font-medium text-red-600 hover:text-red-700 disabled:opacity-50"
+                >
+                  Remove photo
+                </button>
+              </div>
+            ) : null}
           </div>
 
           <div>
