@@ -174,7 +174,7 @@ export default function DonatorDashboard() {
                         <div className="flex items-center gap-3">
                           <button
                             type="button"
-                            onClick={() => navigate(`/dashboard/donator/posts/${post?._id}/edit`)}
+                            onClick={() => navigate(`/dashboard/donator/posts/edit/${post?._id}`)}
                             className="text-green-700 hover:underline"
                           >
                             Edit
