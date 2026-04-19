@@ -5,6 +5,7 @@ import DashboardLayout from '../../components/common/DashboardLayout';
 import api from '../../services/api';
 import { useSocket } from '../../context/SocketContext';
 import { getReceiverSidebarLinks } from '../../config/dashboardNav';
+import { ReceiverDashboardCharts } from '../../components/dashboard/DashboardCharts';
 
 const urgencyClasses = {
   critical: 'bg-red-100 text-red-700',
@@ -130,6 +131,8 @@ export default function ReceiverDashboard() {
           </>
         )}
       </div>
+
+      <ReceiverDashboardCharts needs={needs} stats={stats} loading={loading} />
 
       <section className="mb-8 rounded-xl border border-gray-200 bg-white">
         <div className="border-b border-gray-200 px-4 py-3">

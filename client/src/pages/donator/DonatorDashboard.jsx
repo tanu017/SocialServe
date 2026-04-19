@@ -5,6 +5,7 @@ import DashboardLayout from '../../components/common/DashboardLayout';
 import api from '../../services/api';
 import { useSocket } from '../../context/SocketContext';
 import { getDonatorSidebarLinks } from '../../config/dashboardNav';
+import { DonatorDashboardCharts } from '../../components/dashboard/DashboardCharts';
 
 const statusClassMap = {
   open: 'bg-blue-100 text-blue-700',
@@ -120,6 +121,8 @@ export default function DonatorDashboard() {
           </>
         )}
       </div>
+
+      <DonatorDashboardCharts posts={posts} stats={stats} loading={loading} />
 
       <section className="mb-8 rounded-xl border border-gray-200 bg-white">
         <div className="border-b border-gray-200 px-4 py-3">

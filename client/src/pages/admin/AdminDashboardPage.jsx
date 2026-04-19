@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import AdminLayout from './AdminLayout';
 import api from '../../services/api';
+import { AdminDashboardCharts } from '../../components/dashboard/DashboardCharts';
 
 const defaultStats = {
   totalUsers: 0,
@@ -168,6 +169,8 @@ export default function AdminDashboardPage() {
             ))}
           </div>
 
+          <AdminDashboardCharts stats={defaultStats} loading />
+
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <QuickCardSkeleton />
             <QuickCardSkeleton />
@@ -186,6 +189,8 @@ export default function AdminDashboardPage() {
               <SecondaryStatCard key={card.label} card={card} />
             ))}
           </div>
+
+          <AdminDashboardCharts stats={stats} loading={false} />
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             <div className="rounded-xl border border-gray-200 bg-white p-5">
