@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import api from '../../services/api';
 import { getDonations, getNeeds, helpNeed, needDonation } from '../../services/postService';
 import { useAuth } from '../../context/AuthContext';
+import { canUseMessagingAndPosting } from '../../utils/verification';
 import PostGrid from '../../components/posts/PostGrid';
 
 const PROFILE_POST_LIMIT = 12;
@@ -38,7 +39,7 @@ const getInitials = (name = '') => {
 export default function PublicProfilePage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
   const [profile, setProfile] = useState(null);
   const [posts, setPosts] = useState([]);
@@ -92,6 +93,11 @@ export default function PublicProfilePage() {
       navigate('/login');
       return;
     }
+    if (!canUseMessagingAndPosting(user)) {
+      toast.error('Your account must be verified before you can request donations.');
+      navigate('/account/pending-verification');
+      return;
+    }
 
     try {
       const response = await needDonation(postId);
@@ -107,6 +113,11 @@ export default function PublicProfilePage() {
     if (!isAuthenticated) {
       toast.error('Please log in to offer help.');
       navigate('/login');
+      return;
+    }
+    if (!canUseMessagingAndPosting(user)) {
+      toast.error('Your account must be verified before you can offer help.');
+      navigate('/account/pending-verification');
       return;
     }
 

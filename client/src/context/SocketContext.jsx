@@ -1,17 +1,19 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from './AuthContext';
+import { canUseMessagingAndPosting } from '../utils/verification';
 
 const SocketContext = createContext(null);
 
 export const SocketProvider = ({ children }) => {
-  const { isAuthenticated, token } = useAuth();
+  const { isAuthenticated, token, user } = useAuth();
   const socketRef = useRef(null);
   const [socket, setSocket] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0);
+  const mayUseMessaging = canUseMessagingAndPosting(user);
 
   useEffect(() => {
-    if (isAuthenticated && token) {
+    if (isAuthenticated && token && mayUseMessaging) {
       const socket = io('/', {
         auth: { token: 'Bearer ' + token },
         transports: ['websocket'],
@@ -39,13 +41,15 @@ export const SocketProvider = ({ children }) => {
       };
     }
 
-    if (!isAuthenticated && socketRef.current) {
+    if ((!isAuthenticated || !mayUseMessaging) && socketRef.current) {
       socketRef.current.disconnect();
       socketRef.current = null;
+      setSocket(null);
+      setUnreadCount(0);
     }
 
     return undefined;
-  }, [isAuthenticated, token]);
+  }, [isAuthenticated, token, mayUseMessaging]);
 
   const value = {
     socket,

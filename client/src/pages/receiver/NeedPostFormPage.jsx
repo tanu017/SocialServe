@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/common/DashboardLayout';
 import { createNeed, getNeedById, updateNeed } from '../../services/postService';
 import { useSocket } from '../../context/SocketContext';
+import { useAuth } from '../../context/AuthContext';
 import { getReceiverSidebarLinks } from '../../config/dashboardNav';
 
 const categories = ['food', 'clothing', 'furniture', 'electronics', 'medical', 'books', 'other'];
@@ -53,10 +54,11 @@ export default function NeedPostFormPage() {
   const navigate = useNavigate();
   const { id } = useParams();
   const location = useLocation();
+  const { user } = useAuth();
   const { unreadCount } = useSocket();
 
   const isEditMode = location.pathname.includes('/dashboard/receiver/needs/edit/') && !!id;
-  const sidebarLinks = useMemo(() => getReceiverSidebarLinks(unreadCount), [unreadCount]);
+  const sidebarLinks = useMemo(() => getReceiverSidebarLinks(unreadCount, user), [unreadCount, user]);
 
   const [formData, setFormData] = useState(initialFormState);
   const [errors, setErrors] = useState({});

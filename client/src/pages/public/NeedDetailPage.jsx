@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { getNeedById, helpNeed } from '../../services/postService';
 import { useAuth } from '../../context/AuthContext';
+import { canUseMessagingAndPosting } from '../../utils/verification';
 import { formatDistanceToNow } from 'date-fns';
 import { getUserRefId } from '../../utils/userRef';
 
@@ -40,6 +41,11 @@ const NeedDetailPage = () => {
     if (!isAuthenticated) {
       toast.error('Please log in to offer help.');
       navigate('/login');
+      return;
+    }
+    if (!canUseMessagingAndPosting(user)) {
+      toast.error('Your account must be verified before you can offer help.');
+      navigate('/account/pending-verification');
       return;
     }
     if (user?.role !== 'donator') {
@@ -126,8 +132,8 @@ const NeedDetailPage = () => {
 
   // Determine CTA button state
   const isDonator = isAuthenticated && user?.role === 'donator';
-  const isReceiver = isAuthenticated && user?.role === 'receiver';
   const isCTADisabled = !isDonator && isAuthenticated;
+  const needsVerification = isDonator && !canUseMessagingAndPosting(user);
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
@@ -299,6 +305,14 @@ const NeedDetailPage = () => {
                   Only donators can offer help
                 </div>
               </div>
+            ) : needsVerification ? (
+              <button
+                type="button"
+                onClick={() => navigate('/account/pending-verification')}
+                className="w-full bg-amber-500 hover:bg-amber-600 text-white py-3 rounded-xl text-lg font-semibold transition-colors"
+              >
+                Verification required
+              </button>
             ) : (
               <button
                 onClick={handleHelp}

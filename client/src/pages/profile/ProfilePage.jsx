@@ -68,9 +68,9 @@ export default function ProfilePage() {
     `${inputClass} ${pwdErrors[field] ? pwdFieldErrorClass : ''}`;
 
   const sidebarLinks = useMemo(() => {
-    if (user?.role === 'receiver') return getReceiverSidebarLinks(unreadCount);
-    return getDonatorSidebarLinks(unreadCount);
-  }, [user?.role, unreadCount]);
+    if (user?.role === 'receiver') return getReceiverSidebarLinks(unreadCount, user);
+    return getDonatorSidebarLinks(unreadCount, user);
+  }, [user, unreadCount]);
 
   useEffect(() => {
     let cancelled = false;

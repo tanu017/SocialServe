@@ -1,6 +1,6 @@
 import express from 'express';
 import DonationPost from '../models/DonationPost.js';
-import { protect, authorize } from '../middleware/auth.js';
+import { protect, authorize, requireVerified } from '../middleware/auth.js';
 import { getPlatformSettings } from '../utils/platformSettings.js';
 import { multerUpload, uploadToCloudinary } from '../middleware/upload.js';
 import { findOrCreateConversationForPair } from '../utils/conversationHelpers.js';
@@ -57,7 +57,7 @@ router.get('/', async (req, res) => {
 });
 
 // 2. POST / — Create a new donation post with image uploads
-router.post('/', protect, authorize('donator'), multerUpload, async (req, res) => {
+router.post('/', protect, authorize('donator'), requireVerified, multerUpload, async (req, res) => {
   try {
     const platformSettings = await getPlatformSettings();
     if (!platformSettings.allowNewDonationPosts) {
@@ -178,7 +178,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // 5. PUT /:id — Update a donation post
-router.put('/:id', protect, authorize('donator'), multerUpload, async (req, res) => {
+router.put('/:id', protect, authorize('donator'), requireVerified, multerUpload, async (req, res) => {
   try {
     const post = await DonationPost.findById(req.params.id);
 
@@ -261,7 +261,7 @@ router.put('/:id', protect, authorize('donator'), multerUpload, async (req, res)
 });
 
 // 6. DELETE /:id — Delete a donation post
-router.delete('/:id', protect, authorize('donator'), async (req, res) => {
+router.delete('/:id', protect, authorize('donator'), requireVerified, async (req, res) => {
   try {
     const post = await DonationPost.findById(req.params.id);
 
@@ -299,7 +299,7 @@ router.delete('/:id', protect, authorize('donator'), async (req, res) => {
 });
 
 // 7. POST /:id/need — Request a donation (create/retrieve conversation)
-router.post('/:id/need', protect, authorize('receiver'), async (req, res) => {
+router.post('/:id/need', protect, authorize('receiver'), requireVerified, async (req, res) => {
   try {
     // Find the donation post
     const post = await DonationPost.findById(req.params.id);
@@ -335,7 +335,7 @@ router.post('/:id/need', protect, authorize('receiver'), async (req, res) => {
 });
 
 // 8. PUT /:id/choose/:receiverId — Choose a receiver for the donation
-router.put('/:id/choose/:receiverId', protect, authorize('donator'), async (req, res) => {
+router.put('/:id/choose/:receiverId', protect, authorize('donator'), requireVerified, async (req, res) => {
   try {
     const post = await DonationPost.findById(req.params.id);
 

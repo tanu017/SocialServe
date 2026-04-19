@@ -5,6 +5,8 @@ import DashboardLayout from '../../components/common/DashboardLayout';
 import api from '../../services/api';
 import { useSocket } from '../../context/SocketContext';
 import { getDonatorSidebarLinks } from '../../config/dashboardNav';
+import { useAuth } from '../../context/AuthContext';
+import { canUseMessagingAndPosting } from '../../utils/verification';
 import { DonatorDashboardCharts } from '../../components/dashboard/DashboardCharts';
 
 const statusClassMap = {
@@ -28,6 +30,7 @@ const formatDate = (value) => {
 
 export default function DonatorDashboard() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { unreadCount } = useSocket();
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -63,7 +66,8 @@ export default function DonatorDashboard() {
       .slice(0, 5);
   }, [posts]);
 
-  const sidebarLinks = useMemo(() => getDonatorSidebarLinks(unreadCount), [unreadCount]);
+  const sidebarLinks = useMemo(() => getDonatorSidebarLinks(unreadCount, user), [unreadCount, user]);
+  const verified = canUseMessagingAndPosting(user);
 
   const handleDelete = async (postId) => {
     if (pendingDeleteId !== postId) {
@@ -172,20 +176,26 @@ export default function DonatorDashboard() {
                       <td className="px-4 py-3 text-gray-600">{formatDate(post?.createdAt)}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <button
-                            type="button"
-                            onClick={() => navigate(`/dashboard/donator/posts/edit/${post?._id}`)}
-                            className="text-green-700 hover:underline"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDelete(post?._id)}
-                            className="text-red-600 hover:underline"
-                          >
-                            Delete
-                          </button>
+                          {verified ? (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => navigate(`/dashboard/donator/posts/edit/${post?._id}`)}
+                                className="text-green-700 hover:underline"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDelete(post?._id)}
+                                className="text-red-600 hover:underline"
+                              >
+                                Delete
+                              </button>
+                            </>
+                          ) : (
+                            <span className="text-xs text-gray-400">Locked until verified</span>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -206,7 +216,9 @@ export default function DonatorDashboard() {
       <section className="flex flex-wrap gap-3">
         <button
           type="button"
-          onClick={() => navigate('/dashboard/donator/posts/new')}
+          onClick={() =>
+            verified ? navigate('/dashboard/donator/posts/new') : navigate('/account/pending-verification')
+          }
           className="rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700"
         >
           Post a Donation

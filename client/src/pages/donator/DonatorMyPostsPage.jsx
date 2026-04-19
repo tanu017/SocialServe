@@ -6,6 +6,8 @@ import DashboardLayout from '../../components/common/DashboardLayout';
 import api from '../../services/api';
 import { useSocket } from '../../context/SocketContext';
 import { getDonatorSidebarLinks } from '../../config/dashboardNav';
+import { useAuth } from '../../context/AuthContext';
+import { canUseMessagingAndPosting } from '../../utils/verification';
 
 const conditionClasses = {
   new: 'bg-blue-100 text-blue-700',
@@ -48,12 +50,14 @@ const getImageUrl = (post) => {
 
 export default function DonatorMyPostsPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { unreadCount } = useSocket();
 
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const sidebarLinks = useMemo(() => getDonatorSidebarLinks(unreadCount), [unreadCount]);
+  const sidebarLinks = useMemo(() => getDonatorSidebarLinks(unreadCount, user), [unreadCount, user]);
+  const verified = canUseMessagingAndPosting(user);
 
   useEffect(() => {
     const fetchMyPosts = async () => {
@@ -105,7 +109,9 @@ export default function DonatorMyPostsPage() {
         <h1 className="text-2xl font-bold text-gray-900">My Donation Posts</h1>
         <button
           type="button"
-          onClick={() => navigate('/dashboard/donator/posts/new')}
+          onClick={() =>
+            verified ? navigate('/dashboard/donator/posts/new') : navigate('/account/pending-verification')
+          }
           className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
         >
           New Post
@@ -152,7 +158,9 @@ export default function DonatorMyPostsPage() {
           <p className="mb-4 text-gray-600">You haven&apos;t posted any donations yet.</p>
           <button
             type="button"
-            onClick={() => navigate('/dashboard/donator/posts/new')}
+            onClick={() =>
+              verified ? navigate('/dashboard/donator/posts/new') : navigate('/account/pending-verification')
+            }
             className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
           >
             Create Your First Post
@@ -215,33 +223,37 @@ export default function DonatorMyPostsPage() {
                     </td>
                     <td className="px-4 py-3 text-gray-600">{formatDate(post?.createdAt)}</td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <button
-                          type="button"
-                          onClick={() => navigate(`/dashboard/donator/posts/edit/${post?._id}`)}
-                          className="text-green-700 hover:underline"
-                        >
-                          Edit
-                        </button>
-                        <select
-                          value={status}
-                          onChange={(event) => handleStatusChange(post?._id, event.target.value)}
-                          className="rounded border border-gray-300 px-2 py-1 text-xs text-gray-700"
-                        >
-                          {statusOptions.map((option) => (
-                            <option key={option} value={option}>
-                              {option.replace('_', ' ')}
-                            </option>
-                          ))}
-                        </select>
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(post?._id)}
-                          className="text-red-600 hover:underline"
-                        >
-                          Delete
-                        </button>
-                      </div>
+                      {verified ? (
+                        <div className="flex items-center gap-3">
+                          <button
+                            type="button"
+                            onClick={() => navigate(`/dashboard/donator/posts/edit/${post?._id}`)}
+                            className="text-green-700 hover:underline"
+                          >
+                            Edit
+                          </button>
+                          <select
+                            value={status}
+                            onChange={(event) => handleStatusChange(post?._id, event.target.value)}
+                            className="rounded border border-gray-300 px-2 py-1 text-xs text-gray-700"
+                          >
+                            {statusOptions.map((option) => (
+                              <option key={option} value={option}>
+                                {option.replace('_', ' ')}
+                              </option>
+                            ))}
+                          </select>
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(post?._id)}
+                            className="text-red-600 hover:underline"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-gray-400">Locked until verified</span>
+                      )}
                     </td>
                   </tr>
                 );
@@ -251,7 +263,7 @@ export default function DonatorMyPostsPage() {
         </div>
       )}
 
-      {!loading && posts.length > 0 ? (
+      {!loading && posts.length > 0 && verified ? (
         <div className="mt-4">
           <Link to="/dashboard/donator/posts/new" className="text-sm font-medium text-green-700 hover:underline">
             Create another post

@@ -3,6 +3,7 @@ import { Toaster } from 'react-hot-toast';
 import Navbar from './components/common/Navbar';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import ProtectedRoute from './components/routing/ProtectedRoute';
+import VerifiedRoute from './components/routing/VerifiedRoute';
 import BrowseRoleGuard from './components/routing/BrowseRoleGuard';
 
 // Pages
@@ -31,6 +32,7 @@ import AdminNeedsPage from './pages/admin/AdminNeedsPage';
 import AdminSettingsPage from './pages/admin/AdminSettingsPage';
 import PlatformBanner from './components/common/PlatformBanner';
 import NotFoundPage from './pages/NotFoundPage';
+import PendingVerificationPage from './pages/account/PendingVerificationPage';
 
 function App() {
   return (
@@ -97,6 +99,15 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/profile/:id" element={<PublicProfilePage />} />
 
+          <Route
+            path="/account/pending-verification"
+            element={
+              <ProtectedRoute>
+                <PendingVerificationPage />
+              </ProtectedRoute>
+            }
+          />
+
           {/* Protected Routes */}
           <Route
             path="/dashboard/donator"
@@ -118,7 +129,9 @@ function App() {
             path="/dashboard/donator/posts/new"
             element={
               <ProtectedRoute allowedRoles={['donator']}>
-                <DonationPostFormPage />
+                <VerifiedRoute>
+                  <DonationPostFormPage />
+                </VerifiedRoute>
               </ProtectedRoute>
             }
           />
@@ -126,7 +139,9 @@ function App() {
             path="/dashboard/donator/posts/edit/:id"
             element={
               <ProtectedRoute allowedRoles={['donator']}>
-                <DonationPostFormPage />
+                <VerifiedRoute>
+                  <DonationPostFormPage />
+                </VerifiedRoute>
               </ProtectedRoute>
             }
           />
@@ -134,7 +149,9 @@ function App() {
             path="/dashboard/donator/messages"
             element={
               <ProtectedRoute allowedRoles={['donator']}>
-                <DonatorInboxPage />
+                <VerifiedRoute>
+                  <DonatorInboxPage />
+                </VerifiedRoute>
               </ProtectedRoute>
             }
           />
@@ -142,7 +159,9 @@ function App() {
             path="/dashboard/donator/messages/:conversationId"
             element={
               <ProtectedRoute allowedRoles={['donator']}>
-                <DonatorInboxPage />
+                <VerifiedRoute>
+                  <DonatorInboxPage />
+                </VerifiedRoute>
               </ProtectedRoute>
             }
           />
@@ -174,7 +193,9 @@ function App() {
             path="/dashboard/receiver/needs/new"
             element={
               <ProtectedRoute allowedRoles={['receiver']}>
-                <NeedPostFormPage />
+                <VerifiedRoute>
+                  <NeedPostFormPage />
+                </VerifiedRoute>
               </ProtectedRoute>
             }
           />
@@ -182,7 +203,9 @@ function App() {
             path="/dashboard/receiver/needs/edit/:id"
             element={
               <ProtectedRoute allowedRoles={['receiver']}>
-                <NeedPostFormPage />
+                <VerifiedRoute>
+                  <NeedPostFormPage />
+                </VerifiedRoute>
               </ProtectedRoute>
             }
           />
@@ -190,7 +213,9 @@ function App() {
             path="/dashboard/receiver/messages"
             element={
               <ProtectedRoute allowedRoles={['receiver']}>
-                <ReceiverInboxPage />
+                <VerifiedRoute>
+                  <ReceiverInboxPage />
+                </VerifiedRoute>
               </ProtectedRoute>
             }
           />
@@ -198,7 +223,9 @@ function App() {
             path="/dashboard/receiver/messages/:conversationId"
             element={
               <ProtectedRoute allowedRoles={['receiver']}>
-                <ReceiverInboxPage />
+                <VerifiedRoute>
+                  <ReceiverInboxPage />
+                </VerifiedRoute>
               </ProtectedRoute>
             }
           />

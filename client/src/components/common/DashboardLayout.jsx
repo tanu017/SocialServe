@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useSocket } from '../../context/SocketContext';
+import VerificationBanner from './VerificationBanner';
 
 const iconClassName = 'h-4 w-4';
 
@@ -44,6 +45,12 @@ const Icons = {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5">
       <path d="M15 17H5l1.4-1.4A2 2 0 0 0 7 14.2V11a5 5 0 1 1 10 0v3.2a2 2 0 0 0 .6 1.4L19 17h-4" />
       <path d="M10 20a2 2 0 0 0 4 0" />
+    </svg>
+  ),
+  lock: (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={iconClassName}>
+      <rect x="5" y="11" width="14" height="10" rx="2" />
+      <path d="M8 11V8a4 4 0 0 1 8 0v3" />
     </svg>
   )
 };
@@ -191,7 +198,10 @@ export default function DashboardLayout({
           </div>
         </div>
 
-        <div className="px-6 py-6">{children}</div>
+        <div className="px-6 py-6">
+          <VerificationBanner />
+          {children}
+        </div>
       </main>
     </div>
   );

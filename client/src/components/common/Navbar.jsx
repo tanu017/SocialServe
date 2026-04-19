@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useSocket } from '../../context/SocketContext';
+import { canUseMessagingAndPosting } from '../../utils/verification';
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -51,6 +52,7 @@ export default function Navbar() {
   };
 
   const isAdmin = user?.role === 'admin';
+  const verifiedForActions = canUseMessagingAndPosting(user);
   const getMessagesLink = () => {
     switch (user?.role) {
       case 'donator':
@@ -85,9 +87,9 @@ export default function Navbar() {
               ];
 
   const postNavItem =
-    isAuthenticated && user?.role === 'receiver'
+    isAuthenticated && verifiedForActions && user?.role === 'receiver'
       ? { to: '/dashboard/receiver/needs/new', label: 'Post a Need' }
-      : isAuthenticated && user?.role === 'donator'
+      : isAuthenticated && verifiedForActions && user?.role === 'donator'
         ? { to: '/dashboard/donator/posts/new', label: 'Post a Donation' }
         : null;
 
@@ -174,7 +176,7 @@ export default function Navbar() {
                       </span>
                     ) : null}
                   </Link>
-                  {messagesLink ? (
+                  {messagesLink && verifiedForActions ? (
                     <Link
                       to={messagesLink}
                       className="relative inline-flex items-center text-gray-600 transition-colors hover:text-green-600"
@@ -312,7 +314,7 @@ export default function Navbar() {
                       </span>
                     ) : null}
                   </Link>
-                  {messagesLink ? (
+                  {messagesLink && verifiedForActions ? (
                     <Link
                       to={messagesLink}
                       className="relative inline-flex items-center py-2 text-gray-600"

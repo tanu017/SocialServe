@@ -21,7 +21,7 @@ export default function ReceiverInboxPage() {
   const { user } = useAuth();
 
   const [selectedConversation, setSelectedConversation] = useState(null);
-  const sidebarLinks = useMemo(() => getReceiverSidebarLinks(unreadCount), [unreadCount]);
+  const sidebarLinks = useMemo(() => getReceiverSidebarLinks(unreadCount, user), [unreadCount, user]);
 
   useEffect(() => {
     if (!conversationId) return;

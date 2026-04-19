@@ -131,6 +131,16 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const refreshUser = async () => {
+    const response = await getMe();
+    const payload = response?.data?.data ?? response?.data;
+    const nextUser = payload?.user ?? payload;
+    if (nextUser?._id) {
+      setUser(nextUser);
+      localStorage.setItem('SocialServe_user', JSON.stringify(nextUser));
+    }
+  };
+
   const value = {
     user,
     token,
@@ -142,6 +152,7 @@ export const AuthProvider = ({ children }) => {
     clearLocalSession,
     updateProfile,
     applyUser,
+    refreshUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

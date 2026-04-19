@@ -5,6 +5,8 @@ import DashboardLayout from '../../components/common/DashboardLayout';
 import api from '../../services/api';
 import { useSocket } from '../../context/SocketContext';
 import { getReceiverSidebarLinks } from '../../config/dashboardNav';
+import { useAuth } from '../../context/AuthContext';
+import { canUseMessagingAndPosting } from '../../utils/verification';
 import { ReceiverDashboardCharts } from '../../components/dashboard/DashboardCharts';
 
 const urgencyClasses = {
@@ -36,12 +38,14 @@ const formatDate = (value) => {
 
 export default function ReceiverDashboard() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { unreadCount } = useSocket();
   const [needs, setNeeds] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pendingDeleteId, setPendingDeleteId] = useState(null);
 
-  const sidebarLinks = useMemo(() => getReceiverSidebarLinks(unreadCount), [unreadCount]);
+  const sidebarLinks = useMemo(() => getReceiverSidebarLinks(unreadCount, user), [unreadCount, user]);
+  const verified = canUseMessagingAndPosting(user);
 
   useEffect(() => {
     const fetchMyNeeds = async () => {
@@ -192,22 +196,26 @@ export default function ReceiverDashboard() {
                       </td>
                       <td className="px-4 py-3 text-gray-600">{formatDate(post?.createdAt)}</td>
                       <td className="px-4 py-3">
-                        <div className="flex items-center gap-3">
-                          <button
-                            type="button"
-                            onClick={() => navigate(`/dashboard/receiver/needs/edit/${post?._id}`)}
-                            className="text-green-700 hover:underline"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleDelete(post?._id)}
-                            className="text-red-600 hover:underline"
-                          >
-                            Delete
-                          </button>
-                        </div>
+                        {verified ? (
+                          <div className="flex items-center gap-3">
+                            <button
+                              type="button"
+                              onClick={() => navigate(`/dashboard/receiver/needs/edit/${post?._id}`)}
+                              className="text-green-700 hover:underline"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDelete(post?._id)}
+                              className="text-red-600 hover:underline"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-400">Locked until verified</span>
+                        )}
                       </td>
                     </tr>
                   );
@@ -221,7 +229,9 @@ export default function ReceiverDashboard() {
       <section className="flex flex-wrap gap-3">
         <button
           type="button"
-          onClick={() => navigate('/dashboard/receiver/needs/new')}
+          onClick={() =>
+            verified ? navigate('/dashboard/receiver/needs/new') : navigate('/account/pending-verification')
+          }
           className="rounded-lg bg-green-600 px-4 py-2 text-white hover:bg-green-700"
         >
           Post a Need

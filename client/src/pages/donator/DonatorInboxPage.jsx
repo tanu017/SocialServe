@@ -22,7 +22,7 @@ export default function DonatorInboxPage() {
 
   const [selectedConversation, setSelectedConversation] = useState(null);
 
-  const sidebarLinks = useMemo(() => getDonatorSidebarLinks(unreadCount), [unreadCount]);
+  const sidebarLinks = useMemo(() => getDonatorSidebarLinks(unreadCount, user), [unreadCount, user]);
 
   useEffect(() => {
     if (!conversationId) return;

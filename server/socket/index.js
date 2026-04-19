@@ -40,6 +40,9 @@ export default function initSocket(io) {
     // payload: { conversationId, text }
     socket.on('message:send', async (payload, callback) => {
       try {
+        if (socket.user.role !== 'admin' && !socket.user.isVerified) {
+          return callback?.({ error: 'Account not verified' });
+        }
         const { conversationId, text } = payload;
         const roomId = conversationId != null ? String(conversationId) : '';
         if (!text?.trim()) return callback?.({ error: 'Empty message' });
@@ -94,6 +97,7 @@ export default function initSocket(io) {
     // payload: { conversationId }
     socket.on('message:read', async (payload) => {
       try {
+        if (socket.user.role !== 'admin' && !socket.user.isVerified) return;
         const { conversationId } = payload;
         const roomId = conversationId != null ? String(conversationId) : '';
         await Message.updateMany(
@@ -113,6 +117,7 @@ export default function initSocket(io) {
     // Typing indicator
     // payload: { conversationId, isTyping }
     socket.on('user:typing', (payload) => {
+      if (socket.user.role !== 'admin' && !socket.user.isVerified) return;
       const roomId =
         payload?.conversationId != null ? String(payload.conversationId) : '';
       if (!roomId) return;

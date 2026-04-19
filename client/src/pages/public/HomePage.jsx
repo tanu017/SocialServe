@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { canUseMessagingAndPosting } from '../../utils/verification';
 import PostGrid from '../../components/posts/PostGrid';
 import { getDonations, getNeeds, needDonation, helpNeed } from '../../services/postService';
 
@@ -38,7 +39,8 @@ function IconHeartOutline() {
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
+  const verified = canUseMessagingAndPosting(user);
   
   const [donations, setDonations] = useState([]);
   const [needs, setNeeds] = useState([]);
@@ -86,6 +88,10 @@ export default function HomePage() {
       navigate('/login');
       return;
     }
+    if (!verified) {
+      navigate('/account/pending-verification');
+      return;
+    }
 
     try {
       const response = await needDonation(donationId);
@@ -99,6 +105,10 @@ export default function HomePage() {
   const handleNeedCTA = async (needId) => {
     if (!isAuthenticated) {
       navigate('/login');
+      return;
+    }
+    if (!verified) {
+      navigate('/account/pending-verification');
       return;
     }
 
@@ -152,14 +162,26 @@ export default function HomePage() {
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
               <button
                 type="button"
-                onClick={() => navigate('/dashboard/donator/posts/new')}
+                onClick={() =>
+                  !isAuthenticated
+                    ? navigate('/login')
+                    : verified
+                      ? navigate('/dashboard/donator/posts/new')
+                      : navigate('/account/pending-verification')
+                }
                 className="rounded-lg border-2 border-green-600 bg-white px-6 py-3 text-center text-sm font-medium text-green-600 transition-colors hover:bg-green-50 sm:text-base"
               >
                 Post a Donation
               </button>
               <button
                 type="button"
-                onClick={() => navigate('/dashboard/receiver/needs/new')}
+                onClick={() =>
+                  !isAuthenticated
+                    ? navigate('/login')
+                    : verified
+                      ? navigate('/dashboard/receiver/needs/new')
+                      : navigate('/account/pending-verification')
+                }
                 className="rounded-lg border-2 border-green-600 bg-white px-6 py-3 text-center text-sm font-medium text-green-600 transition-colors hover:bg-green-50 sm:text-base"
               >
                 Post a Need

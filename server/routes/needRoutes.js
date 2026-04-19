@@ -1,6 +1,6 @@
 import express from 'express';
 import NeedPost from '../models/NeedPost.js';
-import { protect, authorize } from '../middleware/auth.js';
+import { protect, authorize, requireVerified } from '../middleware/auth.js';
 import { getPlatformSettings } from '../utils/platformSettings.js';
 import { multerUpload, uploadToCloudinary } from '../middleware/upload.js';
 import { findOrCreateConversationForPair } from '../utils/conversationHelpers.js';
@@ -57,7 +57,7 @@ router.get('/', async (req, res) => {
 });
 
 // 2. POST / — Create a new need post with image uploads
-router.post('/', protect, authorize('receiver'), multerUpload, async (req, res) => {
+router.post('/', protect, authorize('receiver'), requireVerified, multerUpload, async (req, res) => {
   try {
     const platformSettings = await getPlatformSettings();
     if (!platformSettings.allowNewNeedPosts) {
@@ -174,7 +174,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // 5. PUT /:id — Update a need post
-router.put('/:id', protect, authorize('receiver'), multerUpload, async (req, res) => {
+router.put('/:id', protect, authorize('receiver'), requireVerified, multerUpload, async (req, res) => {
   try {
     const post = await NeedPost.findById(req.params.id);
 
@@ -249,7 +249,7 @@ router.put('/:id', protect, authorize('receiver'), multerUpload, async (req, res
 });
 
 // 6. DELETE /:id — Delete a need post
-router.delete('/:id', protect, authorize('receiver'), async (req, res) => {
+router.delete('/:id', protect, authorize('receiver'), requireVerified, async (req, res) => {
   try {
     const post = await NeedPost.findById(req.params.id);
 
@@ -287,7 +287,7 @@ router.delete('/:id', protect, authorize('receiver'), async (req, res) => {
 });
 
 // 7. POST /:id/help — Offer help for a need (create/retrieve conversation)
-router.post('/:id/help', protect, authorize('donator'), async (req, res) => {
+router.post('/:id/help', protect, authorize('donator'), requireVerified, async (req, res) => {
   try {
     // Find the need post
     const post = await NeedPost.findById(req.params.id);

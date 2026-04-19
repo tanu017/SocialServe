@@ -6,6 +6,8 @@ import DashboardLayout from '../../components/common/DashboardLayout';
 import api from '../../services/api';
 import { useSocket } from '../../context/SocketContext';
 import { getReceiverSidebarLinks } from '../../config/dashboardNav';
+import { useAuth } from '../../context/AuthContext';
+import { canUseMessagingAndPosting } from '../../utils/verification';
 
 const urgencyClasses = {
   critical: 'bg-red-100 text-red-700',
@@ -50,11 +52,13 @@ const getImageUrl = (post) => {
 
 export default function ReceiverMyNeedsPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { unreadCount } = useSocket();
   const [needs, setNeeds] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const sidebarLinks = useMemo(() => getReceiverSidebarLinks(unreadCount), [unreadCount]);
+  const sidebarLinks = useMemo(() => getReceiverSidebarLinks(unreadCount, user), [unreadCount, user]);
+  const verified = canUseMessagingAndPosting(user);
 
   useEffect(() => {
     const fetchMyNeeds = async () => {
@@ -106,7 +110,9 @@ export default function ReceiverMyNeedsPage() {
         <h1 className="text-2xl font-bold text-gray-900">My Need Posts</h1>
         <button
           type="button"
-          onClick={() => navigate('/dashboard/receiver/needs/new')}
+          onClick={() =>
+            verified ? navigate('/dashboard/receiver/needs/new') : navigate('/account/pending-verification')
+          }
           className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
         >
           New Need
@@ -153,7 +159,9 @@ export default function ReceiverMyNeedsPage() {
           <p className="mb-4 text-gray-600">You haven&apos;t posted any needs yet.</p>
           <button
             type="button"
-            onClick={() => navigate('/dashboard/receiver/needs/new')}
+            onClick={() =>
+              verified ? navigate('/dashboard/receiver/needs/new') : navigate('/account/pending-verification')
+            }
             className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
           >
             Create Your First Need
@@ -216,33 +224,37 @@ export default function ReceiverMyNeedsPage() {
                     </td>
                     <td className="px-4 py-3 text-gray-600">{formatDate(post?.createdAt)}</td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <button
-                          type="button"
-                          onClick={() => navigate(`/dashboard/receiver/needs/edit/${post?._id}`)}
-                          className="text-green-700 hover:underline"
-                        >
-                          Edit
-                        </button>
-                        <select
-                          value={status}
-                          onChange={(event) => handleStatusChange(post?._id, event.target.value)}
-                          className="rounded border border-gray-300 px-2 py-1 text-xs text-gray-700"
-                        >
-                          {statusOptions.map((option) => (
-                            <option key={option} value={option}>
-                              {option.replace('_', ' ')}
-                            </option>
-                          ))}
-                        </select>
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(post?._id)}
-                          className="text-red-600 hover:underline"
-                        >
-                          Delete
-                        </button>
-                      </div>
+                      {verified ? (
+                        <div className="flex items-center gap-3">
+                          <button
+                            type="button"
+                            onClick={() => navigate(`/dashboard/receiver/needs/edit/${post?._id}`)}
+                            className="text-green-700 hover:underline"
+                          >
+                            Edit
+                          </button>
+                          <select
+                            value={status}
+                            onChange={(event) => handleStatusChange(post?._id, event.target.value)}
+                            className="rounded border border-gray-300 px-2 py-1 text-xs text-gray-700"
+                          >
+                            {statusOptions.map((option) => (
+                              <option key={option} value={option}>
+                                {option.replace('_', ' ')}
+                              </option>
+                            ))}
+                          </select>
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(post?._id)}
+                            className="text-red-600 hover:underline"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-gray-400">Locked until verified</span>
+                      )}
                     </td>
                   </tr>
                 );

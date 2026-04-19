@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { getDonations, needDonation } from '../../services/postService';
 import { useAuth } from '../../context/AuthContext';
+import { canUseMessagingAndPosting } from '../../utils/verification';
 import PostFilters from '../../components/posts/PostFilters';
 import PostGrid from '../../components/posts/PostGrid';
 import Pagination from '../../components/common/Pagination';
@@ -11,7 +12,7 @@ const PAGE_SIZE = 12;
 
 export default function BrowseDonationsPage() {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [filters, setFilters] = useState({});
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -60,6 +61,11 @@ export default function BrowseDonationsPage() {
     if (!isAuthenticated) {
       toast.error('Please log in to request a donation.');
       navigate('/login');
+      return;
+    }
+    if (!canUseMessagingAndPosting(user)) {
+      toast.error('Your account must be verified before you can request donations.');
+      navigate('/account/pending-verification');
       return;
     }
 

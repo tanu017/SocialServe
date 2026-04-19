@@ -1,7 +1,7 @@
 import express from 'express';
 import Conversation from '../models/Conversation.js';
 import Message from '../models/Message.js';
-import { protect } from '../middleware/auth.js';
+import { protect, requireVerified } from '../middleware/auth.js';
 import { enrichConversationsWithRelatedPosts } from '../utils/conversationHelpers.js';
 
 const router = express.Router();
@@ -12,7 +12,7 @@ function isParticipant(conversation, userId) {
 }
 
 // Mounted at /api/v1/conversations — GET / lists conversations for the current user
-router.get('/', protect, async (req, res) => {
+router.get('/', protect, requireVerified, async (req, res) => {
   try {
     const conversations = await Conversation.find({
       participants: req.user._id,
@@ -28,7 +28,7 @@ router.get('/', protect, async (req, res) => {
 });
 
 // GET /:id/messages — messages in a conversation
-router.get('/:id/messages', protect, async (req, res) => {
+router.get('/:id/messages', protect, requireVerified, async (req, res) => {
   try {
     const conversation = await Conversation.findById(req.params.id);
 
@@ -51,7 +51,7 @@ router.get('/:id/messages', protect, async (req, res) => {
 });
 
 // POST /:id/messages — send a message (persist + broadcast like socket handler)
-router.post('/:id/messages', protect, async (req, res) => {
+router.post('/:id/messages', protect, requireVerified, async (req, res) => {
   try {
     const text = typeof req.body?.text === 'string' ? req.body.text.trim() : '';
     if (!text) {
@@ -105,7 +105,7 @@ router.post('/:id/messages', protect, async (req, res) => {
 });
 
 // PUT /:id/read — mark as read
-router.put('/:id/read', protect, async (req, res) => {
+router.put('/:id/read', protect, requireVerified, async (req, res) => {
   try {
     const conversation = await Conversation.findById(req.params.id);
 

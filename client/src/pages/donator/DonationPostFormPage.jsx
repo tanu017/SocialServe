@@ -5,6 +5,7 @@ import DashboardLayout from '../../components/common/DashboardLayout';
 import { createDonation, getDonationById, updateDonation } from '../../services/postService';
 import { useSocket } from '../../context/SocketContext';
 import { getDonatorSidebarLinks } from '../../config/dashboardNav';
+import { useAuth } from '../../context/AuthContext';
 
 const categories = ['food', 'clothing', 'furniture', 'electronics', 'medical', 'books', 'other'];
 const conditions = ['new', 'good', 'fair'];
@@ -49,10 +50,11 @@ export default function DonationPostFormPage() {
   const navigate = useNavigate();
   const { id } = useParams();
   const location = useLocation();
+  const { user } = useAuth();
   const { unreadCount } = useSocket();
 
   const isEditMode = location.pathname.includes('/dashboard/donator/posts/edit/') && !!id;
-  const sidebarLinks = useMemo(() => getDonatorSidebarLinks(unreadCount), [unreadCount]);
+  const sidebarLinks = useMemo(() => getDonatorSidebarLinks(unreadCount, user), [unreadCount, user]);
 
   const [formData, setFormData] = useState(initialFormState);
   const [errors, setErrors] = useState({});
